@@ -1,0 +1,47 @@
+models:
+  - name: stg_special_offer
+    description: ""
+    columns:
+      - name: id_special_offer
+        data_type: integer
+        description: ""
+
+      - name: special_offer_description
+        data_type: varchar
+        description: ""
+
+      - name: discount_pct
+        data_type: double
+        description: ""
+
+      - name: special_offer_type
+        data_type: varchar
+        description: ""
+
+      - name: special_offer_category
+        data_type: varchar
+        description: ""
+
+      - name: special_offer_start_date
+        data_type: timestamp
+        description: ""
+
+      - name: special_offer_end_date
+        data_type: timestamp
+        description: ""
+
+      - name: min_qty
+        data_type: integer
+        description: ""
+
+      - name: max_qty
+        data_type: integer
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

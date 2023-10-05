@@ -1,0 +1,917 @@
+sources:
+- name: adventure_works_sales
+  description: Adventure Works data for the Sales domain
+  tables:
+  - name: CountryRegionCurrency
+    description: |-
+      Cross-reference table mapping ISO currency codes to a country or region.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/CountryRegionCurrency.csv',
+          columns={"CountryRegionCode": "varchar(3)", "CurrencyCode": "varchar(3)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CountryRegionCode
+      data_type: varchar(3)
+      description: |-
+        ISO code for countries and regions. Foreign key to CountryRegion.CountryRegionCode.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'CountryRegion')
+          field: CountryRegionCode
+    - name: CurrencyCode
+      data_type: varchar(3)
+      description: |-
+        ISO standard currency code. Foreign key to Currency.CurrencyCode.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'Currency')
+          field: CurrencyCode
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: CreditCard
+    description: |-
+      Customer credit card information.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/CreditCard.csv',
+          columns={"CreditCardID": "int", "CardType": "varchar(50)", "CardNumber": "varchar(25)", "ExpMonth": "tinyint", "ExpYear": "smallint", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CreditCardID
+      data_type: int
+      description: |-
+        Primary key for CreditCard records.
+    - name: CardType
+      data_type: varchar(50)
+      description: |-
+        Credit card name.
+    - name: CardNumber
+      data_type: varchar(25)
+      description: |-
+        Credit card number.
+    - name: ExpMonth
+      data_type: tinyint
+      description: |-
+        Credit card expiration month.
+    - name: ExpYear
+      data_type: smallint
+      description: |-
+        Credit card expiration year.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Currency
+    description: |-
+      Lookup table containing standard ISO currencies.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Currency.csv',
+          columns={"CurrencyCode": "varchar(3)", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CurrencyCode
+      data_type: varchar(3)
+      description: |-
+        The ISO code for the Currency.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Currency name.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: CurrencyRate
+    description: |-
+      Currency exchange rates.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/CurrencyRate.csv',
+          columns={"CurrencyRateID": "int", "CurrencyRateDate": "datetime", "FromCurrencyCode": "varchar(3)", "ToCurrencyCode": "varchar(3)", "AverageRate": "double", "EndOfDayRate": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CurrencyRateID
+      data_type: int
+      description: |-
+        Primary key for CurrencyRate records.
+    - name: CurrencyRateDate
+      data_type: datetime
+      description: |-
+        Date and time the exchange rate was obtained.
+    - name: FromCurrencyCode
+      data_type: varchar(3)
+      description: |-
+        Exchange rate was converted from this currency code.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'Currency')
+          field: CurrencyCode
+    - name: ToCurrencyCode
+      data_type: varchar(3)
+      description: |-
+        Exchange rate was converted to this currency code.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'Currency')
+          field: CurrencyCode
+    - name: AverageRate
+      data_type: double
+      description: |-
+        Average exchange rate for the day.
+    - name: EndOfDayRate
+      data_type: double
+      description: |-
+        Final exchange rate for the day.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Customer
+    description: |-
+      Current customer information. Also see the Person and Store tables.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Customer.csv',
+          columns={"CustomerID": "int", "PersonID": "int", "StoreID": "int", "TerritoryID": "int", "AccountNumber": "varchar(10)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CustomerID
+      data_type: int
+      description: |-
+        Primary key.
+    - name: PersonID
+      data_type: int
+      description: |-
+        Foreign key to Person.BusinessEntityID
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: StoreID
+      data_type: int
+      description: |-
+        Foreign key to Store.BusinessEntityID
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'Store')
+          field: BusinessEntityID
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        ID of the territory in which the customer is located. Foreign key to SalesTerritory.SalesTerritoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesTerritory')
+          field: TerritoryID
+    - name: AccountNumber
+      data_type: varchar(10)
+      description: |-
+        Unique number identifying the customer assigned by the accounting system.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: PersonCreditCard
+    description: |-
+      Cross-reference table mapping people to their credit card information in the CreditCard table. 
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/PersonCreditCard.csv',
+          columns={"BusinessEntityID": "int", "CreditCardID": "int", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Business entity identification number. Foreign key to Person.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: CreditCardID
+      data_type: int
+      description: |-
+        Credit card identification number. Foreign key to CreditCard.CreditCardID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'CreditCard')
+          field: CreditCardID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesOrderDetail
+    description: |-
+      Individual products associated with a specific sales order. See SalesOrderHeader.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesOrderDetail.csv',
+          columns={"SalesOrderID": "int", "SalesOrderDetailID": "int", "CarrierTrackingNumber": "varchar(25)", "OrderQty": "smallint", "ProductID": "int", "SpecialOfferID": "int", "UnitPrice": "double", "UnitPriceDiscount": "double", "LineTotal": "double", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SalesOrderID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to SalesOrderHeader.SalesOrderID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesOrderHeader')
+          field: SalesOrderID
+    - name: SalesOrderDetailID
+      data_type: int
+      description: |-
+        Primary key. One incremental unique number per product sold.
+    - name: CarrierTrackingNumber
+      data_type: varchar(25)
+      description: |-
+        Shipment tracking number supplied by the shipper.
+    - name: OrderQty
+      data_type: smallint
+      description: |-
+        Quantity ordered per product.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product sold to customer. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: SpecialOfferID
+      data_type: int
+      description: |-
+        Promotional code. Foreign key to SpecialOffer.SpecialOfferID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SpecialOfferProduct')
+          field: SpecialOfferID Sales
+    - name: UnitPrice
+      data_type: double
+      description: |-
+        Selling price of a single product.
+    - name: UnitPriceDiscount
+      data_type: double
+      description: |-
+        Discount amount.
+    - name: LineTotal
+      data_type: double
+      description: |-
+        Per product subtotal. Computed as UnitPrice * (1 - UnitPriceDiscount) * OrderQty.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesOrderHeader
+    description: |-
+      General sales order information.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesOrderHeader.csv',
+          columns={"SalesOrderID": "int", "RevisionNumber": "tinyint", "OrderDate": "datetime", "DueDate": "datetime", "ShipDate": "datetime", "Status": "tinyint", "OnlineOrderFlag": "boolean", "SalesOrderNumber": "varchar(25)", "PurchaseOrderNumber": "varchar(25)", "AccountNumber": "varchar(15)", "CustomerID": "int", "SalesPersonID": "int", "TerritoryID": "int", "BillToAddressID": "int", "ShipToAddressID": "int", "ShipMethodID": "int", "CreditCardID": "int", "CreditCardApprovalCode": "varchar(15)", "CurrencyRateID": "int", "SubTotal": "double", "TaxAmt": "double", "Freight": "double", "TotalDue": "double", "Comment": "varchar(128)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SalesOrderID
+      data_type: int
+      description: |-
+        Primary key.
+    - name: RevisionNumber
+      data_type: tinyint
+      description: |-
+        Incremental number to track changes to the sales order over time.
+    - name: OrderDate
+      data_type: datetime
+      description: |-
+        Dates the sales order was created.
+    - name: DueDate
+      data_type: datetime
+      description: |-
+        Date the order is due to the customer.
+    - name: ShipDate
+      data_type: datetime
+      description: |-
+        Date the order was shipped to the customer.
+    - name: Status
+      data_type: tinyint
+      description: |-
+        Order current status. 1 = In process; 2 = Approved; 3 = Backordered; 4 = Rejected; 5 = Shipped; 6 = Cancelled
+    - name: OnlineOrderFlag
+      data_type: boolean
+      description: |-
+        0 = Order placed by sales person. 1 = Order placed online by customer.
+    - name: SalesOrderNumber
+      data_type: varchar(25)
+      description: |-
+        Unique sales order identification number.
+    - name: PurchaseOrderNumber
+      data_type: varchar(25)
+      description: |-
+        Customer purchase order number reference.
+    - name: AccountNumber
+      data_type: varchar(15)
+      description: |-
+        Financial accounting number reference.
+    - name: CustomerID
+      data_type: int
+      description: |-
+        Customer identification number. Foreign key to Customer.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'Customer')
+          field: CustomerID
+    - name: SalesPersonID
+      data_type: int
+      description: |-
+        Sales person who created the sales order. Foreign key to SalesPerson.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesPerson')
+          field: BusinessEntityID
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        Territory in which the sale was made. Foreign key to SalesTerritory.SalesTerritoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesTerritory')
+          field: TerritoryID
+    - name: BillToAddressID
+      data_type: int
+      description: |-
+        Customer billing address. Foreign key to Address.AddressID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Address')
+          field: AddressID
+    - name: ShipToAddressID
+      data_type: int
+      description: |-
+        Customer shipping address. Foreign key to Address.AddressID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Address')
+          field: AddressID
+    - name: ShipMethodID
+      data_type: int
+      description: |-
+        Shipping method. Foreign key to ShipMethod.ShipMethodID.
+      tests:
+      - relationships:
+          to: source('adventure_works_purchasing', 'ShipMethod')
+          field: ShipMethodID
+    - name: CreditCardID
+      data_type: int
+      description: |-
+        Credit card identification number. Foreign key to CreditCard.CreditCardID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'CreditCard')
+          field: CreditCardID
+    - name: CreditCardApprovalCode
+      data_type: varchar(15)
+      description: |-
+        Approval code provided by the credit card company.
+    - name: CurrencyRateID
+      data_type: int
+      description: |-
+        Currency exchange rate used. Foreign key to CurrencyRate.CurrencyRateID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'CurrencyRate')
+          field: CurrencyRateID
+    - name: SubTotal
+      data_type: double
+      description: |-
+        Sales subtotal. Computed as SUM(SalesOrderDetail.LineTotal)for the appropriate SalesOrderID.
+    - name: TaxAmt
+      data_type: double
+      description: |-
+        Tax amount.
+    - name: Freight
+      data_type: double
+      description: |-
+        Shipping cost.
+    - name: TotalDue
+      data_type: double
+      description: |-
+        Total due from customer. Computed as Subtotal + TaxAmt + Freight.
+    - name: Comment
+      data_type: varchar(128)
+      description: |-
+        Sales representative comments.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesOrderHeaderSalesReason
+    description: |-
+      Cross-reference table mapping sales orders to sales reason codes.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesOrderHeaderSalesReason.csv',
+          columns={"SalesOrderID": "int", "SalesReasonID": "int", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SalesOrderID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to SalesOrderHeader.SalesOrderID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesOrderHeader')
+          field: SalesOrderID
+    - name: SalesReasonID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to SalesReason.SalesReasonID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesReason')
+          field: SalesReasonID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesPerson
+    description: |-
+      Sales representative current information.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesPerson.csv',
+          columns={"BusinessEntityID": "int", "TerritoryID": "int", "SalesQuota": "double", "Bonus": "double", "CommissionPct": "double", "SalesYTD": "double", "SalesLastYear": "double", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key for SalesPerson records. Foreign key to Employee.BusinessEntityID
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Employee')
+          field: BusinessEntityID
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        Territory currently assigned to. Foreign key to SalesTerritory.SalesTerritoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesTerritory')
+          field: TerritoryID
+    - name: SalesQuota
+      data_type: double
+      description: |-
+        Projected yearly sales.
+    - name: Bonus
+      data_type: double
+      description: |-
+        Bonus due if quota is met.
+    - name: CommissionPct
+      data_type: double
+      description: |-
+        Commision percent received per sale.
+    - name: SalesYTD
+      data_type: double
+      description: |-
+        Sales total year to date.
+    - name: SalesLastYear
+      data_type: double
+      description: |-
+        Sales total of previous year.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesPersonQuotaHistory
+    description: |-
+      Sales performance tracking.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesPersonQuotaHistory.csv',
+          columns={"BusinessEntityID": "int", "QuotaDate": "datetime", "SalesQuota": "double", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Sales person identification number. Foreign key to SalesPerson.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesPerson')
+          field: BusinessEntityID
+    - name: QuotaDate
+      data_type: datetime
+      description: |-
+        Sales quota date.
+    - name: SalesQuota
+      data_type: double
+      description: |-
+        Sales quota amount.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesReason
+    description: |-
+      Lookup table of customer purchase reasons.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesReason.csv',
+          columns={"SalesReasonID": "int", "Name": "varchar(50)", "ReasonType": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SalesReasonID
+      data_type: int
+      description: |-
+        Primary key for SalesReason records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Sales reason description.
+    - name: ReasonType
+      data_type: varchar(50)
+      description: |-
+        Category the sales reason belongs to.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesTaxRate
+    description: |-
+      Tax rate lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesTaxRate.csv',
+          columns={"SalesTaxRateID": "int", "StateProvinceID": "int", "TaxType": "tinyint", "TaxRate": "double", "Name": "varchar(50)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SalesTaxRateID
+      data_type: int
+      description: |-
+        Primary key for SalesTaxRate records.
+    - name: StateProvinceID
+      data_type: int
+      description: |-
+        State, province, or country/region the sales tax applies to.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'StateProvince')
+          field: StateProvinceID
+    - name: TaxType
+      data_type: tinyint
+      description: |-
+        1 = Tax applied to retail transactions, 2 = Tax applied to wholesale transactions, 3 = Tax applied to all sales (retail and wholesale) transactions.
+    - name: TaxRate
+      data_type: double
+      description: |-
+        Tax rate amount.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Tax rate description.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesTerritory
+    description: |-
+      Sales territory lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesTerritory.csv',
+          columns={"TerritoryID": "int", "Name": "varchar(50)", "CountryRegionCode": "varchar(3)", "Group": "varchar(50)", "SalesYTD": "double", "SalesLastYear": "double", "CostYTD": "double", "CostLastYear": "double", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        Primary key for SalesTerritory records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Sales territory description
+    - name: CountryRegionCode
+      data_type: varchar(3)
+      description: |-
+        ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'CountryRegion')
+          field: CountryRegionCode
+    - name: Group
+      data_type: varchar(50)
+      description: |-
+        Geographic area to which the sales territory belong.
+    - name: SalesYTD
+      data_type: double
+      description: |-
+        Sales in the territory year to date.
+    - name: SalesLastYear
+      data_type: double
+      description: |-
+        Sales in the territory the previous year.
+    - name: CostYTD
+      data_type: double
+      description: |-
+        Business costs in the territory year to date.
+    - name: CostLastYear
+      data_type: double
+      description: |-
+        Business costs in the territory the previous year.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SalesTerritoryHistory
+    description: |-
+      Sales representative transfers to other sales territories.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SalesTerritoryHistory.csv',
+          columns={"BusinessEntityID": "int", "TerritoryID": "int", "StartDate": "datetime", "EndDate": "datetime", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. The sales rep. Foreign key to SalesPerson.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesPerson')
+          field: BusinessEntityID
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        Primary key. Territory identification number. Foreign key to SalesTerritory.SalesTerritoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesTerritory')
+          field: TerritoryID
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        Primary key. Date the sales representive started work in the territory.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        Date the sales representative left work in the territory.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ShoppingCartItem
+    description: |-
+      Contains online customer orders until the order is submitted or cancelled.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ShoppingCartItem.csv',
+          columns={"ShoppingCartItemID": "int", "ShoppingCartID": "varchar(50)", "Quantity": "int", "ProductID": "int", "DateCreated": "datetime", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ShoppingCartItemID
+      data_type: int
+      description: |-
+        Primary key for ShoppingCartItem records.
+    - name: ShoppingCartID
+      data_type: varchar(50)
+      description: |-
+        Shopping cart identification number.
+    - name: Quantity
+      data_type: int
+      description: |-
+        Product quantity ordered.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product ordered. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: DateCreated
+      data_type: datetime
+      description: |-
+        Date the time the record was created.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SpecialOffer
+    description: |-
+      Sale discounts lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SpecialOffer.csv',
+          columns={"SpecialOfferID": "int", "Description": "varchar(255)", "DiscountPct": "double", "Type": "varchar(50)", "Category": "varchar(50)", "StartDate": "datetime", "EndDate": "datetime", "MinQty": "int", "MaxQty": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SpecialOfferID
+      data_type: int
+      description: |-
+        Primary key for SpecialOffer records.
+    - name: Description
+      data_type: varchar(255)
+      description: |-
+        Discount description.
+    - name: DiscountPct
+      data_type: double
+      description: |-
+        Discount precentage.
+    - name: Type
+      data_type: varchar(50)
+      description: |-
+        Discount type category.
+    - name: Category
+      data_type: varchar(50)
+      description: |-
+        Group the discount applies to such as Reseller or Customer.
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        Discount start date.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        Discount end date.
+    - name: MinQty
+      data_type: int
+      description: |-
+        Minimum discount percent allowed.
+    - name: MaxQty
+      data_type: int
+      description: |-
+        Maximum discount percent allowed.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: SpecialOfferProduct
+    description: |-
+      Cross-reference table mapping products to special offer discounts.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/SpecialOfferProduct.csv',
+          columns={"SpecialOfferID": "int", "ProductID": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: SpecialOfferID
+      data_type: int
+      description: |-
+        Primary key for SpecialOfferProduct records.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SpecialOffer')
+          field: SpecialOfferID
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Store
+    description: |-
+      Customers (resellers) of Adventure Works products.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("DWH_DATA") }}/raw/Store.csv',
+          columns={"BusinessEntityID": "int", "Name": "varchar(50)", "SalesPersonID": "int", "Demographics": "varchar", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='|',
+          parallel=false
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Customer.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'BusinessEntity')
+          field: BusinessEntityID
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Name of the store.
+    - name: SalesPersonID
+      data_type: int
+      description: |-
+        ID of the sales person assigned to the customer. Foreign key to SalesPerson.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesPerson')
+          field: BusinessEntityID
+    - name: Demographics
+      data_type: varchar
+      description: |-
+        Demographic informationg about the store such as the number of employees, annual sales and store type.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.

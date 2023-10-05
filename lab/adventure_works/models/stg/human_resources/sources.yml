@@ -1,0 +1,265 @@
+sources:
+- name: adventure_works_human_resources
+  description: Adventure Works data for the human_resources domain
+  tables:
+  - name: Department
+    description: |-
+      Lookup table containing the departments within the Adventure Works Cycles company.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Department.csv',
+          columns={"DepartmentID": "smallint", "Name": "varchar(50)", "GroupName": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: DepartmentID
+      data_type: smallint
+      description: |-
+        Primary key for Department records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Name of the department.
+    - name: GroupName
+      data_type: varchar(50)
+      description: |-
+        Name of the group to which the department belongs.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Employee
+    description: |-
+      Employee information such as salary, department, and title.
+    meta:
+      # external_location: |-
+      #   read_csv(
+      #     '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Employee.csv',
+      #     columns={"BusinessEntityID": "int", "NationalIDNumber": "varchar(15)", "LoginID": "varchar(256)", "OrganizationNode": "blob", "OrganizationLevel": "smallint", "JobTitle": "varchar(50)", "BirthDate": "date", "MaritalStatus": "varchar(1)", "Gender": "varchar(1)", "HireDate": "date", "SalariedFlag": "boolean", "VacationHours": "smallint", "SickLeaveHours": "smallint", "CurrentFlag": "boolean", "rowguid": "varchar", "ModifiedDate": "datetime"},
+      #     sep='\t',
+      #     encoding='utf_16'
+      #   )
+      # formatter: oldstyle
+      external_location: |
+        read_csv_auto(
+          '{{ env_var("DWH_DATA") }}/raw/Employee.csv'
+        )
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key for Employee records. Foreign key to BusinessEntity.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: NationalIDNumber
+      data_type: varchar(15)
+      description: |-
+        Unique national identification number such as a social security number.
+    - name: LoginID
+      data_type: varchar(256)
+      description: |-
+        Network login. Test2
+    - name: OrganizationNode
+      data_type: blob
+      description: |-
+        Where the employee is located in corporate hierarchy.
+    - name: OrganizationLevel
+      data_type: smallint
+      description: |-
+        The depth of the employee in the corporate hierarchy.
+    - name: JobTitle
+      data_type: varchar(50)
+      description: |-
+        Work title such as Buyer or Sales Representative.
+    - name: BirthDate
+      data_type: date
+      description: |-
+        Date of birth.
+    - name: MaritalStatus
+      data_type: varchar(1)
+      description: |-
+        M = Married, S = Single
+    - name: Gender
+      data_type: varchar(1)
+      description: |-
+        M = Male, F = Female
+    - name: HireDate
+      data_type: date
+      description: |-
+        Employee hired on this date.
+    - name: SalariedFlag
+      data_type: boolean
+      description: |-
+        Job classification. 0 = Hourly, not exempt from collective bargaining. 1 = Salaried, exempt from collective bargaining.
+    - name: VacationHours
+      data_type: smallint
+      description: |-
+        Number of available vacation hours.
+    - name: SickLeaveHours
+      data_type: smallint
+      description: |-
+        Number of available sick leave hours.
+    - name: CurrentFlag
+      data_type: boolean
+      description: |-
+        0 = Inactive, 1 = Active
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: EmployeeDepartmentHistory
+    description: |-
+      Employee department transfers.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/EmployeeDepartmentHistory.csv',
+          columns={"BusinessEntityID": "int", "DepartmentID": "smallint", "ShiftID": "tinyint", "StartDate": "date", "EndDate": "date", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Employee identification number. Foreign key to Employee.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Employee')
+          field: BusinessEntityID
+    - name: DepartmentID
+      data_type: smallint
+      description: |-
+        Department in which the employee worked including currently. Foreign key to Department.DepartmentID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Department')
+          field: DepartmentID
+    - name: ShiftID
+      data_type: tinyint
+      description: |-
+        Identifies which 8-hour shift the employee works. Foreign key to Shift.Shift.ID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Shift')
+          field: ShiftID
+    - name: StartDate
+      data_type: date
+      description: |-
+        Date the employee started work in the department.
+    - name: EndDate
+      data_type: date
+      description: |-
+        Date the employee left the department. NULL = Current department.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: EmployeePayHistory
+    description: |-
+      Employee pay history.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/EmployeePayHistory.csv',
+          columns={"BusinessEntityID": "int", "RateChangeDate": "datetime", "Rate": "double", "PayFrequency": "tinyint", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Employee identification number. Foreign key to Employee.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Employee')
+          field: BusinessEntityID
+    - name: RateChangeDate
+      data_type: datetime
+      description: |-
+        Date the change in pay is effective
+    - name: Rate
+      data_type: double
+      description: |-
+        Salary hourly rate.
+    - name: PayFrequency
+      data_type: tinyint
+      description: |-
+        1 = Salary received monthly, 2 = Salary received biweekly
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: JobCandidate
+    description: |-
+      Résumés submitted to Human Resources by job applicants.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/JobCandidate.csv',
+          columns={"JobCandidateID": "int", "BusinessEntityID": "int", "Resume": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: JobCandidateID
+      data_type: int
+      description: |-
+        Primary key for JobCandidate records.
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Employee identification number if applicant was hired. Foreign key to Employee.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Employee')
+          field: BusinessEntityID
+    - name: Resume
+      data_type: varchar
+      description: |-
+        RÃ©sumÃ© in XML format.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Shift
+    description: |-
+      Work shift lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Shift.csv',
+          columns={"ShiftID": "tinyint", "Name": "varchar(50)", "StartTime": "varchar", "EndTime": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ShiftID
+      data_type: tinyint
+      description: |-
+        Primary key for Shift records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Shift description.
+    - name: StartTime
+      data_type: varchar
+      description: |-
+        Shift start time.
+    - name: EndTime
+      data_type: varchar
+      description: |-
+        Shift end time.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.

@@ -1,0 +1,296 @@
+sources:
+- name: adventure_works_purchasing
+  description: Adventure Works data for the Purchasing domain
+  tables:
+  - name: ProductVendor
+    description: |-
+      Cross-reference table mapping vendors with the products they supply.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductVendor.csv',
+          columns={"ProductID": "int", "BusinessEntityID": "int", "AverageLeadTime": "int", "StandardPrice": "double", "LastReceiptCost": "double", "LastReceiptDate": "datetime", "MinOrderQty": "int", "MaxOrderQty": "int", "OnOrderQty": "int", "UnitMeasureCode": "varchar(3)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Vendor.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_purchasing', 'Vendor')
+          field: BusinessEntityID
+    - name: AverageLeadTime
+      data_type: int
+      description: |-
+        The average span of time (in days) between placing an order with the vendor and receiving the purchased product.
+    - name: StandardPrice
+      data_type: double
+      description: |-
+        The vendor's usual selling price.
+    - name: LastReceiptCost
+      data_type: double
+      description: |-
+        The selling price when last purchased.
+    - name: LastReceiptDate
+      data_type: datetime
+      description: |-
+        Date the product was last received by the vendor.
+    - name: MinOrderQty
+      data_type: int
+      description: |-
+        The maximum quantity that should be ordered.
+    - name: MaxOrderQty
+      data_type: int
+      description: |-
+        The minimum quantity that should be ordered.
+    - name: OnOrderQty
+      data_type: int
+      description: |-
+        The quantity currently on order.
+    - name: UnitMeasureCode
+      data_type: varchar(3)
+      description: |-
+        The product's unit of measure.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'UnitMeasure')
+          field: UnitMeasureCode
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: PurchaseOrderDetail
+    description: |-
+      Individual products associated with a specific purchase order. See PurchaseOrderHeader.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/PurchaseOrderDetail.csv',
+          columns={"PurchaseOrderID": "int", "PurchaseOrderDetailID": "int", "DueDate": "datetime", "OrderQty": "smallint", "ProductID": "int", "UnitPrice": "double", "LineTotal": "double", "ReceivedQty": "double", "RejectedQty": "double", "StockedQty": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: PurchaseOrderID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to PurchaseOrderHeader.PurchaseOrderID.
+      tests:
+      - relationships:
+          to: source('adventure_works_purchasing', 'PurchaseOrderHeader')
+          field: PurchaseOrderID
+    - name: PurchaseOrderDetailID
+      data_type: int
+      description: |-
+        Primary key. One line number per purchased product.
+    - name: DueDate
+      data_type: datetime
+      description: |-
+        Date the product is expected to be received.
+    - name: OrderQty
+      data_type: smallint
+      description: |-
+        Quantity ordered.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: UnitPrice
+      data_type: double
+      description: |-
+        Vendor's selling price of a single product.
+    - name: LineTotal
+      data_type: double
+      description: |-
+        Per product subtotal. Computed as OrderQty * UnitPrice.
+    - name: ReceivedQty
+      data_type: double
+      description: |-
+        Quantity actually received from the vendor.
+    - name: RejectedQty
+      data_type: double
+      description: |-
+        Quantity rejected during inspection.
+    - name: StockedQty
+      data_type: double
+      description: |-
+        Quantity accepted into inventory. Computed as ReceivedQty - RejectedQty.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: PurchaseOrderHeader
+    description: |-
+      General purchase order information. See PurchaseOrderDetail.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/PurchaseOrderHeader.csv',
+          columns={"PurchaseOrderID": "int", "RevisionNumber": "tinyint", "Status": "tinyint", "EmployeeID": "int", "VendorID": "int", "ShipMethodID": "int", "OrderDate": "datetime", "ShipDate": "datetime", "SubTotal": "double", "TaxAmt": "double", "Freight": "double", "TotalDue": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: PurchaseOrderID
+      data_type: int
+      description: |-
+        Primary key.
+    - name: RevisionNumber
+      data_type: tinyint
+      description: |-
+        Incremental number to track changes to the purchase order over time.
+    - name: Status
+      data_type: tinyint
+      description: |-
+        Order current status. 1 = Pending; 2 = Approved; 3 = Rejected; 4 = Complete
+    - name: EmployeeID
+      data_type: int
+      description: |-
+        Employee who created the purchase order. Foreign key to Employee.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_human_resources', 'Employee')
+          field: BusinessEntityID
+    - name: VendorID
+      data_type: int
+      description: |-
+        Vendor with whom the purchase order is placed. Foreign key to Vendor.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_purchasing', 'Vendor')
+          field: BusinessEntityID
+    - name: ShipMethodID
+      data_type: int
+      description: |-
+        Shipping method. Foreign key to ShipMethod.ShipMethodID.
+      tests:
+      - relationships:
+          to: source('adventure_works_purchasing', 'ShipMethod')
+          field: ShipMethodID
+    - name: OrderDate
+      data_type: datetime
+      description: |-
+        Purchase order creation date.
+    - name: ShipDate
+      data_type: datetime
+      description: |-
+        Estimated shipment date from the vendor.
+    - name: SubTotal
+      data_type: double
+      description: |-
+        Purchase order subtotal. Computed as SUM(PurchaseOrderDetail.LineTotal)for the appropriate PurchaseOrderID.
+    - name: TaxAmt
+      data_type: double
+      description: |-
+        Tax amount.
+    - name: Freight
+      data_type: double
+      description: |-
+        Shipping cost.
+    - name: TotalDue
+      data_type: double
+      description: |-
+        Total due to vendor. Computed as Subtotal + TaxAmt + Freight.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ShipMethod
+    description: |-
+      Shipping company lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ShipMethod.csv',
+          columns={"ShipMethodID": "int", "Name": "varchar(50)", "ShipBase": "double", "ShipRate": "double", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ShipMethodID
+      data_type: int
+      description: |-
+        Primary key for ShipMethod records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Shipping company name.
+    - name: ShipBase
+      data_type: double
+      description: |-
+        Minimum shipping charge.
+    - name: ShipRate
+      data_type: double
+      description: |-
+        Shipping charge per pound.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Vendor
+    description: |-
+      Companies from whom Adventure Works Cycles purchases parts or other goods.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Vendor.csv',
+          columns={"BusinessEntityID": "int", "AccountNumber": "varchar(15)", "Name": "varchar(50)", "CreditRating": "tinyint", "PreferredVendorStatus": "boolean", "ActiveFlag": "boolean", "PurchasingWebServiceURL": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key for Vendor records. Foreign key to BusinessEntity.BusinessEntityID
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'BusinessEntity')
+          field: BusinessEntityID
+    - name: AccountNumber
+      data_type: varchar(15)
+      description: |-
+        Vendor account (identification) number.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Company name.
+    - name: CreditRating
+      data_type: tinyint
+      description: |-
+        1 = Superior, 2 = Excellent, 3 = Above average, 4 = Average, 5 = Below average
+    - name: PreferredVendorStatus
+      data_type: boolean
+      description: |-
+        0 = Do not use if another vendor is available. 1 = Preferred over other vendors supplying the same product.
+    - name: ActiveFlag
+      data_type: boolean
+      description: |-
+        0 = Vendor no longer used. 1 = Vendor is actively used.
+    - name: PurchasingWebServiceURL
+      data_type: varchar
+      description: |-
+        Vendor URL.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.

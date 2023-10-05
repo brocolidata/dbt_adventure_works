@@ -1,0 +1,39 @@
+models:
+  - name: stg_sales_person
+    description: ""
+    columns:
+      - name: id_business_entity
+        data_type: integer
+        description: ""
+
+      - name: id_sales_territory
+        data_type: integer
+        description: ""
+
+      - name: sales_quota
+        data_type: double
+        description: ""
+
+      - name: bonus
+        data_type: double
+        description: ""
+
+      - name: commission_pct
+        data_type: double
+        description: ""
+
+      - name: sales_ytd
+        data_type: double
+        description: ""
+
+      - name: sales_last_year
+        data_type: double
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

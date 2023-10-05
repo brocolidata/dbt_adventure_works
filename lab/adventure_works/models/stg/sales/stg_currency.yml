@@ -1,0 +1,15 @@
+models:
+  - name: stg_currency
+    description: ""
+    columns:
+      - name: currency_code
+        data_type: varchar
+        description: ""
+
+      - name: currency_name
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

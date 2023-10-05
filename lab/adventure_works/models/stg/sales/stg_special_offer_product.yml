@@ -1,0 +1,23 @@
+models:
+  - name: stg_special_offer_product
+    description: ""
+    columns:
+      - name: id_special_offer
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_special_offer')
+              field: id_special_offer
+
+      - name: id_product
+        data_type: integer
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

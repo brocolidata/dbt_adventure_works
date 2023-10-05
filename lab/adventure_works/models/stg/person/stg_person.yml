@@ -1,0 +1,55 @@
+models:
+  - name: stg_person
+    description: ""
+    columns:
+      - name: id_business_entity
+        data_type: integer
+        description: ""
+
+      - name: person_type
+        data_type: varchar
+        description: ""
+
+      - name: name_style
+        data_type: boolean
+        description: ""
+
+      - name: title
+        data_type: varchar
+        description: ""
+
+      - name: first_name
+        data_type: varchar
+        description: ""
+
+      - name: middle_name
+        data_type: varchar
+        description: ""
+
+      - name: last_name
+        data_type: varchar
+        description: ""
+
+      - name: suffix
+        data_type: varchar
+        description: ""
+
+      - name: email_promotion
+        data_type: integer
+        description: ""
+
+      - name: additional_contact_info
+        data_type: varchar
+        description: ""
+
+      - name: demographics
+        data_type: varchar
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

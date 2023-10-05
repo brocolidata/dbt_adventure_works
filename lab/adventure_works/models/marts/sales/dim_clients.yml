@@ -1,0 +1,39 @@
+models:
+  - name: dim_clients
+    description: ""
+    columns:
+      - name: id_client
+        data_type: integer
+        description: ""
+
+      - name: type_personne
+        data_type: varchar
+        description: ""
+
+      - name: nom_complet_client
+        data_type: varchar
+        description: ""
+
+      - name: id_revendeur
+        data_type: integer
+        description: ""
+
+      - name: id_territoire
+        data_type: integer
+        description: ""
+
+      - name: numero_client
+        data_type: varchar
+        description: ""
+
+semantic_models:
+  - name: clients
+    description: Clients
+    model: ref('dim_clients')
+    dimensions:
+    - name: nom_complet_client
+      type: categorical
+    entities:
+    - name: clients
+      type: primary
+      expr: id_client

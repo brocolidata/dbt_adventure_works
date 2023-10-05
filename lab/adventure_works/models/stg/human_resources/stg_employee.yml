@@ -1,0 +1,67 @@
+models:
+  - name: stg_employee
+    description: ""
+    columns:
+      - name: id_business_entity
+        data_type: integer
+        description: ""
+
+      - name: national_id_number
+        data_type: varchar
+        description: ""
+
+      - name: id_login
+        data_type: varchar
+        description: ""
+
+      - name: organization_node
+        data_type: blob
+        description: ""
+
+      - name: organization_level
+        data_type: smallint
+        description: ""
+
+      - name: job_title
+        data_type: varchar
+        description: ""
+
+      - name: birth_date
+        data_type: date
+        description: ""
+
+      - name: marital_status
+        data_type: varchar
+        description: ""
+
+      - name: gender
+        data_type: varchar
+        description: ""
+
+      - name: hire_date
+        data_type: date
+        description: ""
+
+      - name: is_salaried
+        data_type: boolean
+        description: ""
+
+      - name: vacation_hours
+        data_type: smallint
+        description: ""
+
+      - name: sick_leave_hours
+        data_type: smallint
+        description: ""
+
+      - name: is_active
+        data_type: boolean
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

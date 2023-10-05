@@ -1,0 +1,1104 @@
+sources:
+- name: adventure_works_production
+  description: Adventure Works data for the Production domain
+  tables:
+  - name: BillOfMaterials
+    description: |-
+      Items required to make bicycles and bicycle subassemblies. It identifies the heirarchical relationship between a parent product and its components.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/BillOfMaterials.csv',
+          columns={"BillOfMaterialsID": "int", "ProductAssemblyID": "int", "ComponentID": "int", "StartDate": "datetime", "EndDate": "datetime", "UnitMeasureCode": "varchar(3)", "BOMLevel": "smallint", "PerAssemblyQty": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BillOfMaterialsID
+      data_type: int
+      description: |-
+        Primary key for BillOfMaterials records.
+    - name: ProductAssemblyID
+      data_type: int
+      description: |-
+        Parent product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: ComponentID
+      data_type: int
+      description: |-
+        Component identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        Date the component started being used in the assembly item.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        Date the component stopped being used in the assembly item.
+    - name: UnitMeasureCode
+      data_type: varchar(3)
+      description: |-
+        Standard code identifying the unit of measure for the quantity.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'UnitMeasure')
+          field: UnitMeasureCode
+    - name: BOMLevel
+      data_type: smallint
+      description: |-
+        Indicates the depth the component is from its parent (AssemblyID).
+    - name: PerAssemblyQty
+      data_type: double
+      description: |-
+        Quantity of the component needed to create the assembly.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Culture
+    description: |-
+      Lookup table containing the languages in which some AdventureWorks data is stored.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Culture.csv',
+          columns={"CultureID": "varchar(6)", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: CultureID
+      data_type: varchar(6)
+      description: |-
+        Primary key for Culture records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Culture description.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Document
+    description: |-
+      Product maintenance documents.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Document.csv',
+          columns={"DocumentNode": "blob", "DocumentLevel": "smallint", "Title": "varchar(50)", "Owner": "int", "FolderFlag": "boolean", "FileName": "varchar(400)", "FileExtension": "varchar(8)", "Revision": "varchar(5)", "ChangeNumber": "int", "Status": "tinyint", "DocumentSummary": "varchar", "Document": "blob", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: DocumentNode
+      data_type: blob
+      description: |-
+        Primary key for Document records.
+    - name: DocumentLevel
+      data_type: smallint
+      description: |-
+        Depth in the document hierarchy.
+    - name: Title
+      data_type: varchar(50)
+      description: |-
+        Title of the document.
+    - name: Owner
+      data_type: int
+      description: |-
+        Employee who controls the document. Foreign key to Employee.BusinessEntityID
+    - name: FolderFlag
+      data_type: boolean
+      description: |-
+        0 = This is a folder, 1 = This is a document.
+    - name: FileName
+      data_type: varchar(400)
+      description: |-
+        File name of the document
+    - name: FileExtension
+      data_type: varchar(8)
+      description: |-
+        File extension indicating the document type. For example, .doc or .txt.
+    - name: Revision
+      data_type: varchar(5)
+      description: |-
+        Revision number of the document.
+    - name: ChangeNumber
+      data_type: int
+      description: |-
+        Engineering change approval number.
+    - name: Status
+      data_type: tinyint
+      description: |-
+        1 = Pending approval, 2 = Approved, 3 = Obsolete
+    - name: DocumentSummary
+      data_type: varchar
+      description: |-
+        Document abstract.
+    - name: Document
+      data_type: blob
+      description: |-
+        Complete document.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Required for FileStream.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Illustration
+    description: |-
+      Bicycle assembly diagrams.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Illustration.csv',
+          columns={"IllustrationID": "int", "Diagram": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: IllustrationID
+      data_type: int
+      description: |-
+        Primary key for Illustration records.
+    - name: Diagram
+      data_type: varchar
+      description: |-
+        Illustrations used in manufacturing instructions. Stored as XML.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Location
+    description: |-
+      Product inventory and manufacturing locations.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Location.csv',
+          columns={"LocationID": "smallint", "Name": "varchar(50)", "CostRate": "double", "Availability": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: LocationID
+      data_type: smallint
+      description: |-
+        Primary key for Location records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Location description.
+    - name: CostRate
+      data_type: double
+      description: |-
+        Standard hourly cost of the manufacturing location.
+    - name: Availability
+      data_type: double
+      description: |-
+        Work capacity (in hours) of the manufacturing location.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Product
+    description: |-
+      Products sold or used in the manfacturing of sold products.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Product.csv',
+          columns={"ProductID": "int", "Name": "varchar(50)", "ProductNumber": "varchar(25)", "MakeFlag": "boolean", "FinishedGoodsFlag": "boolean", "Color": "varchar(15)", "SafetyStockLevel": "smallint", "ReorderPoint": "smallint", "StandardCost": "double", "ListPrice": "double", "Size": "varchar(5)", "SizeUnitMeasureCode": "varchar(3)", "WeightUnitMeasureCode": "varchar(3)", "Weight": "double", "DaysToManufacture": "int", "ProductLine": "varchar(2)", "Class": "varchar(2)", "Style": "varchar(2)", "ProductSubcategoryID": "int", "ProductModelID": "int", "SellStartDate": "datetime", "SellEndDate": "datetime", "DiscontinuedDate": "datetime", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Primary key for Product records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Name of the product.
+    - name: ProductNumber
+      data_type: varchar(25)
+      description: |-
+        Unique product identification number.
+    - name: MakeFlag
+      data_type: boolean
+      description: |-
+        0 = Product is purchased, 1 = Product is manufactured in-house.
+    - name: FinishedGoodsFlag
+      data_type: boolean
+      description: |-
+        0 = Product is not a salable item. 1 = Product is salable.
+    - name: Color
+      data_type: varchar(15)
+      description: |-
+        Product color.
+    - name: SafetyStockLevel
+      data_type: smallint
+      description: |-
+        Minimum inventory quantity.
+    - name: ReorderPoint
+      data_type: smallint
+      description: |-
+        Inventory level that triggers a purchase order or work order.
+    - name: StandardCost
+      data_type: double
+      description: |-
+        Standard cost of the product.
+    - name: ListPrice
+      data_type: double
+      description: |-
+        Selling price.
+    - name: Size
+      data_type: varchar(5)
+      description: |-
+        Product size.
+    - name: SizeUnitMeasureCode
+      data_type: varchar(3)
+      description: |-
+        Unit of measure for Size column.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'UnitMeasure')
+          field: UnitMeasureCode
+    - name: WeightUnitMeasureCode
+      data_type: varchar(3)
+      description: |-
+        Unit of measure for Weight column.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'UnitMeasure')
+          field: UnitMeasureCode
+    - name: Weight
+      data_type: double
+      description: |-
+        Product weight.
+    - name: DaysToManufacture
+      data_type: int
+      description: |-
+        Number of days required to manufacture the product.
+    - name: ProductLine
+      data_type: varchar(2)
+      description: |-
+        R = Road, M = Mountain, T = Touring, S = Standard
+    - name: Class
+      data_type: varchar(2)
+      description: |-
+        H = High, M = Medium, L = Low
+    - name: Style
+      data_type: varchar(2)
+      description: |-
+        W = Womens, M = Mens, U = Universal
+    - name: ProductSubcategoryID
+      data_type: int
+      description: |-
+        Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductSubcategory')
+          field: ProductSubcategoryID
+    - name: ProductModelID
+      data_type: int
+      description: |-
+        Product is a member of this product model. Foreign key to ProductModel.ProductModelID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductModel')
+          field: ProductModelID
+    - name: SellStartDate
+      data_type: datetime
+      description: |-
+        Date the product was available for sale.
+    - name: SellEndDate
+      data_type: datetime
+      description: |-
+        Date the product was no longer available for sale.
+    - name: DiscontinuedDate
+      data_type: datetime
+      description: |-
+        Date the product was discontinued.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductCategory
+    description: |-
+      High-level product categorization.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductCategory.csv',
+          columns={"ProductCategoryID": "int", "Name": "varchar(50)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductCategoryID
+      data_type: int
+      description: |-
+        Primary key for ProductCategory records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Category description.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductModelIllustration')
+          field: ProductModelID Production
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductCostHistory
+    description: |-
+      Changes in the cost of a product over time.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductCostHistory.csv',
+          columns={"ProductID": "int", "StartDate": "datetime", "EndDate": "datetime", "StandardCost": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        Product cost start date.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        Product cost end date.
+    - name: StandardCost
+      data_type: double
+      description: |-
+        Standard cost of the product.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductDescription
+    description: |-
+      Product descriptions in several languages.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductDescription.csv',
+          columns={"ProductDescriptionID": "int", "Description": "varchar(400)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductDescriptionID
+      data_type: int
+      description: |-
+        Primary key for ProductDescription records.
+    - name: Description
+      data_type: varchar(400)
+      description: |-
+        Description of the product.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Illustration')
+          field: IllustrationID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductDocument
+    description: |-
+      Cross-reference table mapping products to related product documents.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductDocument.csv',
+          columns={"ProductID": "int", "DocumentNode": "blob", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: DocumentNode
+      data_type: blob
+      description: |-
+        Document identification number. Foreign key to Document.DocumentNode.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Document')
+          field: DocumentNode
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductInventory
+    description: |-
+      Product inventory information.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductInventory.csv',
+          columns={"ProductID": "int", "LocationID": "smallint", "Shelf": "varchar(10)", "Bin": "tinyint", "Quantity": "smallint", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: LocationID
+      data_type: smallint
+      description: |-
+        Inventory location identification number. Foreign key to Location.LocationID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Location')
+          field: LocationID
+    - name: Shelf
+      data_type: varchar(10)
+      description: |-
+        Storage compartment within an inventory location.
+    - name: Bin
+      data_type: tinyint
+      description: |-
+        Storage container on a shelf in an inventory location.
+    - name: Quantity
+      data_type: smallint
+      description: |-
+        Quantity of products in the inventory location.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductListPriceHistory
+    description: |-
+      Changes in the list price of a product over time.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductListPriceHistory.csv',
+          columns={"ProductID": "int", "StartDate": "datetime", "EndDate": "datetime", "ListPrice": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        List price start date.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        List price end date
+    - name: ListPrice
+      data_type: double
+      description: |-
+        Product list price.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductModel
+    description: |-
+      Product model classification.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductModel.csv',
+          columns={"ProductModelID": "int", "Name": "varchar(50)", "CatalogDescription": "varchar", "Instructions": "varchar", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductModelID
+      data_type: int
+      description: |-
+        Primary key for ProductModel records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Product model description.
+    - name: CatalogDescription
+      data_type: varchar
+      description: |-
+        Detailed product catalog information in xml format.
+    - name: Instructions
+      data_type: varchar
+      description: |-
+        Manufacturing instructions in xml format.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductModelIllustration
+    description: |-
+      Cross-reference table mapping product models and illustrations.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductModelIllustration.csv',
+          columns={"ProductModelID": "int", "IllustrationID": "int", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductModelID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to ProductModel.ProductModelID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductModel')
+          field: ProductModelID
+    - name: IllustrationID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Illustration.IllustrationID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Illustration')
+          field: IllustrationID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductModelProductDescriptionCulture')
+          field: ProductDescriptionID
+  - name: ProductModelProductDescriptionCulture
+    description: |-
+      Cross-reference table mapping product descriptions and the language the description is written in.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductModelProductDescriptionCulture.csv',
+          columns={"ProductModelID": "int", "ProductDescriptionID": "int", "CultureID": "varchar(6)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductModelID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to ProductModel.ProductModelID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductModel')
+          field: ProductModelID
+    - name: ProductDescriptionID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to ProductDescription.ProductDescriptionID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductDescription')
+          field: ProductDescriptionID
+    - name: CultureID
+      data_type: varchar(6)
+      description: |-
+        Culture identification number. Foreign key to Culture.CultureID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Culture')
+          field: CultureID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductPhoto
+    description: |-
+      Product images.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductPhoto.csv',
+          columns={"ProductPhotoID": "int", "ThumbNailPhoto": "blob", "ThumbnailPhotoFileName": "varchar(50)", "LargePhoto": "blob", "LargePhotoFileName": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductPhotoID
+      data_type: int
+      description: |-
+        Primary key for ProductPhoto records.
+    - name: ThumbNailPhoto
+      data_type: blob
+      description: |-
+        Small image of the product.
+    - name: ThumbnailPhotoFileName
+      data_type: varchar(50)
+      description: |-
+        Small image file name.
+    - name: LargePhoto
+      data_type: blob
+      description: |-
+        Large image of the product.
+    - name: LargePhotoFileName
+      data_type: varchar(50)
+      description: |-
+        Large image file name.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductProductPhoto
+    description: |-
+      Cross-reference table mapping products and product photos.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductProductPhoto.csv',
+          columns={"ProductID": "int", "ProductPhotoID": "int", "Primary": "boolean", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: ProductPhotoID
+      data_type: int
+      description: |-
+        Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductPhoto')
+          field: ProductPhotoID
+    - name: Primary
+      data_type: boolean
+      description: |-
+        0 = Photo is not the principal image. 1 = Photo is the principal image.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductReview
+    description: |-
+      Customer reviews of products they have purchased.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductReview.csv',
+          columns={"ProductReviewID": "int", "ProductID": "int", "ReviewerName": "varchar(50)", "ReviewDate": "datetime", "EmailAddress": "varchar(50)", "Rating": "int", "Comments": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductReviewID
+      data_type: int
+      description: |-
+        Primary key for ProductReview records.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: ReviewerName
+      data_type: varchar(50)
+      description: |-
+        Name of the reviewer.
+    - name: ReviewDate
+      data_type: datetime
+      description: |-
+        Date review was submitted.
+    - name: EmailAddress
+      data_type: varchar(50)
+      description: |-
+        Reviewer's e-mail address.
+    - name: Rating
+      data_type: int
+      description: |-
+        Product rating given by the reviewer. Scale is 1 to 5 with 5 as the highest rating.
+    - name: Comments
+      data_type: varchar
+      description: |-
+        Reviewer's comments
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ProductSubcategory
+    description: |-
+      Product subcategories. See ProductCategory table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ProductSubcategory.csv',
+          columns={"ProductSubcategoryID": "int", "ProductCategoryID": "int", "Name": "varchar(50)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ProductSubcategoryID
+      data_type: int
+      description: |-
+        Primary key for ProductSubcategory records.
+    - name: ProductCategoryID
+      data_type: int
+      description: |-
+        Product category identification number. Foreign key to ProductCategory.ProductCategoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ProductCategory')
+          field: ProductCategoryID
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Subcategory description.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ScrapReason
+    description: |-
+      Manufacturing failure reasons lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ScrapReason.csv',
+          columns={"ScrapReasonID": "smallint", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ScrapReasonID
+      data_type: smallint
+      description: |-
+        Primary key for ScrapReason records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Failure description.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: TransactionHistory
+    description: |-
+      Record of each purchase order, sales order, or work order transaction year to date.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/TransactionHistory.csv',
+          columns={"TransactionID": "int", "ProductID": "int", "ReferenceOrderID": "int", "ReferenceOrderLineID": "int", "TransactionDate": "datetime", "TransactionType": "varchar(1)", "Quantity": "int", "ActualCost": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: TransactionID
+      data_type: int
+      description: |-
+        Primary key for TransactionHistory records.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: ReferenceOrderID
+      data_type: int
+      description: |-
+        Purchase order, sales order, or work order identification number.
+    - name: ReferenceOrderLineID
+      data_type: int
+      description: |-
+        Line number associated with the purchase order, sales order, or work order.
+    - name: TransactionDate
+      data_type: datetime
+      description: |-
+        Date and time of the transaction.
+    - name: TransactionType
+      data_type: varchar(1)
+      description: |-
+        W = WorkOrder, S = SalesOrder, P = PurchaseOrder
+    - name: Quantity
+      data_type: int
+      description: |-
+        Product quantity.
+    - name: ActualCost
+      data_type: double
+      description: |-
+        Product cost.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: TransactionHistoryArchive
+    description: |-
+      Transactions for previous years.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/TransactionHistoryArchive.csv',
+          columns={"TransactionID": "int", "ProductID": "int", "ReferenceOrderID": "int", "ReferenceOrderLineID": "int", "TransactionDate": "datetime", "TransactionType": "varchar(1)", "Quantity": "int", "ActualCost": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: TransactionID
+      data_type: int
+      description: |-
+        Primary key for TransactionHistoryArchive records.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: ReferenceOrderID
+      data_type: int
+      description: |-
+        Purchase order, sales order, or work order identification number.
+    - name: ReferenceOrderLineID
+      data_type: int
+      description: |-
+        Line number associated with the purchase order, sales order, or work order.
+    - name: TransactionDate
+      data_type: datetime
+      description: |-
+        Date and time of the transaction.
+    - name: TransactionType
+      data_type: varchar(1)
+      description: |-
+        W = Work Order, S = Sales Order, P = Purchase Order
+    - name: Quantity
+      data_type: int
+      description: |-
+        Product quantity.
+    - name: ActualCost
+      data_type: double
+      description: |-
+        Product cost.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: UnitMeasure
+    description: |-
+      Unit of measure lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/UnitMeasure.csv',
+          columns={"UnitMeasureCode": "varchar(3)", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: UnitMeasureCode
+      data_type: varchar(3)
+      description: |-
+        Primary key.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Unit of measure description.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: WorkOrder
+    description: |-
+      Manufacturing work orders.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/WorkOrder.csv',
+          columns={"WorkOrderID": "int", "ProductID": "int", "OrderQty": "int", "StockedQty": "int", "ScrappedQty": "smallint", "StartDate": "datetime", "EndDate": "datetime", "DueDate": "datetime", "ScrapReasonID": "smallint", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: WorkOrderID
+      data_type: int
+      description: |-
+        Primary key for WorkOrder records.
+    - name: ProductID
+      data_type: int
+      description: |-
+        Product identification number. Foreign key to Product.ProductID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Product')
+          field: ProductID
+    - name: OrderQty
+      data_type: int
+      description: |-
+        Product quantity to build.
+    - name: StockedQty
+      data_type: int
+      description: |-
+        Quantity built and put in inventory.
+    - name: ScrappedQty
+      data_type: smallint
+      description: |-
+        Quantity that failed inspection.
+    - name: StartDate
+      data_type: datetime
+      description: |-
+        Work order start date.
+    - name: EndDate
+      data_type: datetime
+      description: |-
+        Work order end date.
+    - name: DueDate
+      data_type: datetime
+      description: |-
+        Work order due date.
+    - name: ScrapReasonID
+      data_type: smallint
+      description: |-
+        Reason for inspection failure.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'ScrapReason')
+          field: ScrapReasonID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: WorkOrderRouting
+    description: |-
+      Work order details.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/WorkOrderRouting.csv',
+          columns={"WorkOrderID": "int", "ProductID": "int", "OperationSequence": "smallint", "LocationID": "smallint", "ScheduledStartDate": "datetime", "ScheduledEndDate": "datetime", "ActualStartDate": "datetime", "ActualEndDate": "datetime", "ActualResourceHrs": "double", "PlannedCost": "double", "ActualCost": "double", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: WorkOrderID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to WorkOrder.WorkOrderID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'WorkOrder')
+          field: WorkOrderID
+    - name: ProductID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Product.ProductID.
+    - name: OperationSequence
+      data_type: smallint
+      description: |-
+        Primary key. Indicates the manufacturing process sequence.
+    - name: LocationID
+      data_type: smallint
+      description: |-
+        Manufacturing location where the part is processed. Foreign key to Location.LocationID.
+      tests:
+      - relationships:
+          to: source('adventure_works_production', 'Location')
+          field: LocationID
+    - name: ScheduledStartDate
+      data_type: datetime
+      description: |-
+        Planned manufacturing start date.
+    - name: ScheduledEndDate
+      data_type: datetime
+      description: |-
+        Planned manufacturing end date.
+    - name: ActualStartDate
+      data_type: datetime
+      description: |-
+        Actual start date.
+    - name: ActualEndDate
+      data_type: datetime
+      description: |-
+        Actual end date.
+    - name: ActualResourceHrs
+      data_type: double
+      description: |-
+        Number of manufacturing hours used.
+    - name: PlannedCost
+      data_type: double
+      description: |-
+        Estimated manufacturing cost.
+    - name: ActualCost
+      data_type: double
+      description: |-
+        Actual manufacturing cost.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.

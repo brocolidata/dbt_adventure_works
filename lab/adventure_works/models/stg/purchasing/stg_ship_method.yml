@@ -1,0 +1,27 @@
+models:
+  - name: stg_ship_method
+    description: ""
+    columns:
+      - name: id_ship_method
+        data_type: integer
+        description: ""
+
+      - name: ship_method_name
+        data_type: varchar
+        description: ""
+
+      - name: ship_base
+        data_type: double
+        description: ""
+
+      - name: ship_rate
+        data_type: double
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

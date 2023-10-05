@@ -1,0 +1,7 @@
+metrics: 
+    - name: chiffre_affaires
+      description: "Order with order values over 20."
+      type: simple
+      label: Chiffre d'Affaires
+      type_params:
+        measure: total_commande

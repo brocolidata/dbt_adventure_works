@@ -1,0 +1,51 @@
+models:
+  - name: fct_lignes_commandes
+    description: ""
+    columns:
+      - name: id_bon_de_commande
+        data_type: integer
+        description: ""
+
+      - name: id_ligne_de_commande
+        data_type: integer
+        description: ""
+
+      - name: quantite_commande
+        data_type: smallint
+        description: ""
+
+      - name: id_produit
+        data_type: integer
+        description: ""
+
+      - name: offre_speciale
+        data_type: varchar
+        description: ""
+
+      - name: prix_unitaire
+        data_type: double
+        description: ""
+
+      - name: montant_remise
+        data_type: double
+        description: ""
+
+      - name: total_ligne
+        data_type: double
+        description: ""
+
+        
+semantic_models:
+  - name: lignes_commandes
+    description: Lignes de Commandes 
+    model: ref('fct_lignes_commandes')
+    entities:
+    - name: lignes_commandes
+      type: primary
+      expr: id_ligne_de_commande
+    - name: commandes
+      type: foreign
+      expr: id_bon_de_commande
+    - name: id_produit
+      type: foreign
+    

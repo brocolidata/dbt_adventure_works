@@ -1,0 +1,494 @@
+sources:
+- name: adventure_works_person
+  description: Adventure Works data for the Person domain
+  tables:
+  - name: Address
+    description: |-
+      Street address information for customers, employees, and vendors.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Address.csv',
+          columns={"AddressID": "int", "AddressLine1": "varchar(60)", "AddressLine2": "varchar(60)", "City": "varchar(30)", "StateProvinceID": "int", "PostalCode": "varchar(15)", "SpatialLocation": "blob", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: AddressID
+      data_type: int
+      description: |-
+        Primary key for Address records.
+    - name: AddressLine1
+      data_type: varchar(60)
+      description: |-
+        First street address line.
+    - name: AddressLine2
+      data_type: varchar(60)
+      description: |-
+        Second street address line.
+    - name: City
+      data_type: varchar(30)
+      description: |-
+        Name of the city.
+    - name: StateProvinceID
+      data_type: int
+      description: |-
+        Unique identification number for the state or province. Foreign key to StateProvince table.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'StateProvince')
+          field: StateProvinceID
+    - name: PostalCode
+      data_type: varchar(15)
+      description: |-
+        Postal code for the street address.
+    - name: SpatialLocation
+      data_type: blob
+      description: |-
+        Latitude and longitude of this address.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: AddressType
+    description: |-
+      Types of addresses stored in the Address table. 
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/AddressType.csv',
+          columns={"AddressTypeID": "int", "Name": "varchar(50)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: AddressTypeID
+      data_type: int
+      description: |-
+        Primary key for AddressType records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Address type description. For example, Billing, Home, or Shipping.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: BusinessEntity
+    description: |-
+      Source of the ID that connects vendors, customers, and employees with address and contact information.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/BusinessEntity.csv',
+          columns={"BusinessEntityID": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key for all customers, vendors, and employees.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: BusinessEntityAddress
+    description: |-
+      Cross-reference table mapping customers, vendors, and employees to their addresses.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/BusinessEntityAddress.csv',
+          columns={"BusinessEntityID": "int", "AddressID": "int", "AddressTypeID": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to BusinessEntity.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'BusinessEntity')
+          field: BusinessEntityID
+    - name: AddressID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Address.AddressID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Address')
+          field: AddressID
+    - name: AddressTypeID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to AddressType.AddressTypeID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'AddressType')
+          field: AddressTypeID
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: BusinessEntityContact
+    description: |-
+      Cross-reference table mapping stores, vendors, and employees to people
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/BusinessEntityContact.csv',
+          columns={"BusinessEntityID": "int", "PersonID": "int", "ContactTypeID": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to BusinessEntity.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'BusinessEntity')
+          field: BusinessEntityID
+    - name: PersonID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to Person.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: ContactTypeID
+      data_type: int
+      description: |-
+        Primary key. Foreign key to ContactType.ContactTypeID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'ContactType')
+          field: ContactTypeID
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: ContactType
+    description: |-
+      Lookup table containing the types of business entity contacts.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/ContactType.csv',
+          columns={"ContactTypeID": "int", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: ContactTypeID
+      data_type: int
+      description: |-
+        Primary key for ContactType records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Contact type description.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: CountryRegion
+    description: |-
+      Lookup table containing the ISO standard codes for countries and regions.
+    meta:
+      external_location: |-
+        read_csv_auto(
+          '{{ env_var("DWH_DATA") }}/raw/CountryRegion.csv'
+        )
+    columns:
+    - name: CountryRegionCode
+      data_type: varchar(3)
+      description: |-
+        ISO standard code for countries and regions.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Country or region name.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: EmailAddress
+    description: |-
+      Where to send a person email.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/EmailAddress.csv',
+          columns={"BusinessEntityID": "int", "EmailAddressID": "int", "EmailAddress": "varchar(50)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key. Person associated with this email address. Foreign key to Person.BusinessEntityID
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: EmailAddressID
+      data_type: int
+      description: |-
+        Primary key. ID of this email address.
+    - name: EmailAddress
+      data_type: varchar(50)
+      description: |-
+        E-mail address for the person.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Password
+    description: |-
+      One way hashed authentication information
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/Password.csv',
+          columns={"BusinessEntityID": "int", "PasswordHash": "varchar(128)", "PasswordSalt": "varchar(10)", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        nan
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: PasswordHash
+      data_type: varchar(128)
+      description: |-
+        Password for the e-mail account.
+    - name: PasswordSalt
+      data_type: varchar(10)
+      description: |-
+        Random value concatenated with the password string before the password is hashed.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: Person
+    description: |-
+      Human beings involved with AdventureWorks: employees, customer contacts, and vendor contacts.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("DWH_DATA") }}/raw/Person.csv',
+          columns={"BusinessEntityID": "int", "PersonType": "varchar(2)", "NameStyle": "boolean", "Title": "varchar(8)", "FirstName": "varchar(50)", "MiddleName": "varchar(50)", "LastName": "varchar(50)", "Suffix": "varchar(10)", "EmailPromotion": "int", "AdditionalContactInfo": "varchar", "Demographics": "varchar", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='|',
+          parallel=false
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Primary key for Person records.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'BusinessEntity')
+          field: BusinessEntityID
+    - name: PersonType
+      data_type: varchar(2)
+      description: |-
+        Primary type of person: SC = Store Contact, IN = Individual (retail) customer, SP = Sales person, EM = Employee (non-sales), VC = Vendor contact, GC = General contact
+    - name: NameStyle
+      data_type: boolean
+      description: |-
+        0 = The data in FirstName and LastName are stored in western style (first name, last name) order. 1 = Eastern style (last name, first name) order.
+    - name: Title
+      data_type: varchar(8)
+      description: |-
+        A courtesy title. For example, Mr. or Ms.
+    - name: FirstName
+      data_type: varchar(50)
+      description: |-
+        First name of the person.
+    - name: MiddleName
+      data_type: varchar(50)
+      description: |-
+        Middle name or middle initial of the person.
+    - name: LastName
+      data_type: varchar(50)
+      description: |-
+        Last name of the person.
+    - name: Suffix
+      data_type: varchar(10)
+      description: |-
+        Surname suffix. For example, Sr. or Jr.
+    - name: EmailPromotion
+      data_type: int
+      description: |-
+        0 = Contact does not wish to receive e-mail promotions, 1 = Contact does wish to receive e-mail promotions from AdventureWorks, 2 = Contact does wish to receive e-mail promotions from AdventureWorks and selected partners.
+    - name: AdditionalContactInfo
+      data_type: varchar
+      description: |-
+        Additional contact information about the person stored in xml format.
+    - name: Demographics
+      data_type: varchar
+      description: |-
+        Personal information such as hobbies, and income collected from online shoppers. Used for sales analysis.
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: PersonPhone
+    description: |-
+      Telephone number and type of a person.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/PersonPhone.csv',
+          columns={"BusinessEntityID": "int", "PhoneNumber": "varchar(25)", "PhoneNumberTypeID": "int", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: BusinessEntityID
+      data_type: int
+      description: |-
+        Business entity identification number. Foreign key to Person.BusinessEntityID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'Person')
+          field: BusinessEntityID
+    - name: PhoneNumber
+      data_type: varchar(25)
+      description: |-
+        Telephone number identification number.
+    - name: PhoneNumberTypeID
+      data_type: int
+      description: |-
+        Kind of phone number. Foreign key to PhoneNumberType.PhoneNumberTypeID.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'PhoneNumberType')
+          field: PhoneNumberTypeID
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: PhoneNumberType
+    description: |-
+      Type of phone number of a person.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/PhoneNumberType.csv',
+          columns={"PhoneNumberTypeID": "int", "Name": "varchar(50)", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: PhoneNumberTypeID
+      data_type: int
+      description: |-
+        Primary key for telephone number type records.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        Name of the telephone number type
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.
+  - name: StateProvince
+    description: |-
+      State and province lookup table.
+    meta:
+      external_location: |-
+        read_csv(
+          '{{ env_var("ADVENTURE_WORKS_SOURCE_URL") }}/StateProvince.csv',
+          columns={"StateProvinceID": "int", "StateProvinceCode": "varchar(3)", "CountryRegionCode": "varchar(3)", "IsOnlyStateProvinceFlag": "boolean", "Name": "varchar(50)", "TerritoryID": "int", "rowguid": "varchar", "ModifiedDate": "datetime"},
+          sep='\t'
+        )
+      formatter: oldstyle
+    columns:
+    - name: StateProvinceID
+      data_type: int
+      description: |-
+        Primary key for StateProvince records.
+    - name: StateProvinceCode
+      data_type: varchar(3)
+      description: |-
+        ISO standard state or province code.
+    - name: CountryRegionCode
+      data_type: varchar(3)
+      description: |-
+        ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode.
+      tests:
+      - relationships:
+          to: source('adventure_works_person', 'CountryRegion')
+          field: CountryRegionCode
+    - name: IsOnlyStateProvinceFlag
+      data_type: boolean
+      description: |-
+        0 = StateProvinceCode exists. 1 = StateProvinceCode unavailable, using CountryRegionCode.
+    - name: Name
+      data_type: varchar(50)
+      description: |-
+        State or province description.
+    - name: TerritoryID
+      data_type: int
+      description: |-
+        ID of the territory in which the state or province is located. Foreign key to SalesTerritory.SalesTerritoryID.
+      tests:
+      - relationships:
+          to: source('adventure_works_sales', 'SalesTerritory')
+          field: TerritoryID
+    - name: rowguid
+      data_type: varchar
+      description: |-
+        ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+    - name: ModifiedDate
+      data_type: datetime
+      description: |-
+        Date and time the record was last updated.

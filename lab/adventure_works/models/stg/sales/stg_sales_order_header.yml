@@ -1,0 +1,124 @@
+models:
+  - name: stg_sales_order_header
+    description: ""
+    columns:
+      - name: id_sales_order
+        data_type: integer
+        description: ""
+
+      - name: revision_number
+        data_type: tinyint
+        description: ""
+
+      - name: order_date
+        data_type: timestamp
+        description: ""
+
+      - name: due_date
+        data_type: timestamp
+        description: ""
+
+      - name: ship_date
+        data_type: timestamp
+        description: ""
+
+      - name: order_status
+        data_type: tinyint
+        description: ""
+
+      - name: is_online_order
+        data_type: boolean
+        description: ""
+
+      - name: sales_order_number
+        data_type: varchar
+        description: ""
+
+      - name: purchase_order_number
+        data_type: varchar
+        description: ""
+
+      - name: account_number
+        data_type: varchar
+        description: ""
+
+      - name: id_customer
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_customer')
+              field: id_customer
+
+      - name: id_sales_person
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_sales_person')
+              field: id_business_entity
+
+      - name: id_sales_territory
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_sales_territory')
+              field: id_sales_territory
+
+      - name: id_bill_to_address
+        data_type: integer
+        description: ""
+
+      - name: id_ship_to_address
+        data_type: integer
+        description: ""
+
+      - name: id_ship_method
+        data_type: integer
+        description: ""
+
+      - name: id_credit_card
+        data_type: integer
+        description: ""
+
+      - name: credit_card_approval_code
+        data_type: varchar
+        description: ""
+
+      - name: id_currency_rate
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_currency_rate')
+              field: id_currency_rate
+
+
+      - name: subtotal
+        data_type: double
+        description: ""
+
+      - name: tax_amt
+        data_type: double
+        description: ""
+
+      - name: freight
+        data_type: double
+        description: ""
+
+      - name: total_due
+        data_type: double
+        description: ""
+
+      - name: comment
+        data_type: varchar
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""
