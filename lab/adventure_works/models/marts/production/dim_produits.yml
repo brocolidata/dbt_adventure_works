@@ -1,0 +1,114 @@
+models:
+  - name: dim_produits
+    description: "Produits destinés à la vente"
+    access: public
+    group: production
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: id_produit
+        data_type: integer
+        description: ""
+
+      - name: nom_produit
+        data_type: varchar
+        description: ""
+
+      - name: numero_produit
+        data_type: varchar
+        description: ""
+
+      - name: est_manufacture
+        data_type: boolean
+        description: ""
+
+      - name: couleur_produit
+        data_type: varchar
+        description: ""
+
+      - name: niveau_stock_securite
+        data_type: smallint
+        description: ""
+
+      - name: niveau_stock_alerte
+        data_type: smallint
+        description: ""
+
+      - name: cout_standard
+        data_type: double
+        description: ""
+
+      - name: liste_prix
+        data_type: double
+        description: ""
+
+      - name: taille_produit
+        data_type: varchar
+        description: ""
+
+      - name: unite_mesure_taille_produit
+        data_type: varchar
+        description: ""
+
+      - name: poids_produit
+        data_type: double
+        description: ""
+
+      - name: unite_mesure_poids_produit
+        data_type: varchar
+        description: ""
+
+      - name: jours_fabrication
+        data_type: integer
+        description: ""
+
+      - name: gamme_produit
+        data_type: varchar
+        description: ""
+
+      - name: classe_produit
+        data_type: varchar
+        description: ""
+
+      - name: style_produit
+        data_type: varchar
+        description: ""
+
+      - name: sous_categorie_produit
+        data_type: varchar
+        description: ""
+
+      - name: categorie_produit
+        data_type: varchar
+        description: ""
+
+      - name: date_debut_commercialisation
+        data_type: timestamp
+        description: ""
+
+      - name: date_fin_commercialisation
+        data_type: timestamp
+        description: ""
+
+      - name: date_arret
+        data_type: timestamp
+        description: ""
+
+semantic_models:
+  - name: produits
+    description: bookings_monthly_source
+    model: ref('dim_produits')
+    dimensions:
+    - name: nom_produit
+      type: categorical
+    - name: categorie_produit
+      type: categorical
+    - name: sous_categorie_produit
+      type: categorical
+    - name: couleur_produit
+      type: categorical
+    entities:
+    - name: produits
+      type: primary
+      expr: id_produit

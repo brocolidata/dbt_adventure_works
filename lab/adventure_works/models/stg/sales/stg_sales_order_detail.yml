@@ -1,0 +1,55 @@
+models:
+  - name: stg_sales_order_detail
+    description: ""
+    columns:
+      - name: id_sales_order
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_sales_order_header')
+              field: id_sales_order
+
+      - name: id_sales_order_detail
+        data_type: integer
+        description: ""
+
+      - name: carrier_tracking_number
+        data_type: varchar
+        description: ""
+
+      - name: order_qty
+        data_type: smallint
+        description: ""
+
+      - name: id_product
+        data_type: integer
+        description: ""
+
+      - name: id_special_offer
+        data_type: integer
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_special_offer')
+              field: id_special_offer
+
+      - name: unit_price
+        data_type: double
+        description: ""
+
+      - name: unit_price_discount
+        data_type: double
+        description: ""
+
+      - name: line_total
+        data_type: double
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

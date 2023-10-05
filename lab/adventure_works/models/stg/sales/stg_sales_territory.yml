@@ -1,0 +1,43 @@
+models:
+  - name: stg_sales_territory
+    description: ""
+    columns:
+      - name: id_sales_territory
+        data_type: integer
+        description: ""
+
+      - name: territory_name
+        data_type: varchar
+        description: ""
+
+      - name: country_region_code
+        data_type: varchar
+        description: ""
+
+      - name: territory_group
+        data_type: varchar
+        description: ""
+
+      - name: sales_ytd
+        data_type: double
+        description: ""
+
+      - name: sales_last_year
+        data_type: double
+        description: ""
+
+      - name: cost_ytd
+        data_type: double
+        description: ""
+
+      - name: cost_last_year
+        data_type: double
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

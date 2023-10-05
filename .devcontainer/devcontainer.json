@@ -1,0 +1,71 @@
+{
+  "name": "Adventure Works dbt lab",
+  "dockerFile": "Dockerfile",
+  "runArgs": [
+    "--name",
+    "dbt_adventure_works"
+  ],
+  "remoteEnv": {
+    "DBT_PROFILES_DIR": "${containerWorkspaceFolder}/profiles",
+    "DBT_PROJECT_DIR": "${containerWorkspaceFolder}/adventure_works",
+    "DBT_TARGET_PATH": "${containerWorkspaceFolder}/adventure_works/target",
+    "DBT_LOG_PATH": "${containerWorkspaceFolder}/adventure_works/logs",
+    "DUCKDB_DATA": "${containerWorkspaceFolder}/duckdb_data",
+    "DWH_DATA": "${containerWorkspaceFolder}/dwh_data",
+    "ADVENTURE_WORKS_SOURCE_URL": "https://raw.githubusercontent.com/microsoft/sql-server-samples/master/samples/databases/adventure-works/oltp-install-script"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder}/lab/,target=/dbt_adventure_works/lab,type=bind",
+  "workspaceFolder": "/dbt_adventure_works/lab",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "innoverio.vscode-dbt-power-user",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.vscode-jupyter-cell-tags",
+        "janisdd.vscode-edit-csv",
+        "Evidence.sqltools-duckdb-driver",
+        "bierner.markdown-mermaid"
+      ],
+      "settings": {
+        "files.associations": {
+          "*.sql": "jinja-sql"
+        },
+        "sqltools.autoOpenSessionFiles": false,
+        "sqltools.connections": [
+          {
+            "name": "raw",
+            "accessMode": "Read Only",
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "group": "DWH",
+            "databaseFilePath": "duckdb_data/raw.duckdb"
+          },
+          {
+            "name": "staging",
+            "accessMode": "Read Only",
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "group": "DWH",
+            "databaseFilePath": "duckdb_data/stg.duckdb"
+          },
+          {
+            "name": "intermediate",
+            "accessMode": "Read Only",
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "group": "DWH",
+            "databaseFilePath": "duckdb_data/int.duckdb"
+          },
+          {
+            "name": "marts",
+            "accessMode": "Read Only",
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "group": "DWH",
+            "databaseFilePath": "duckdb_data/marts.duckdb"
+          }
+        ]
+      }
+    }
+  }
+}

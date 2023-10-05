@@ -1,0 +1,39 @@
+models:
+  - name: int_joined_person_sales_person
+    description: ""
+    columns:
+      - name: id_sales_person
+        data_type: integer
+        description: ""
+
+      - name: full_name
+        data_type: varchar
+        description: ""
+
+      - name: person_type
+        data_type: varchar
+        description: ""
+
+      - name: id_sales_territory
+        data_type: integer
+        description: ""
+
+      - name: sales_quota
+        data_type: double
+        description: ""
+
+      - name: bonus
+        data_type: double
+        description: ""
+
+      - name: commission_pct
+        data_type: double
+        description: ""
+
+      - name: sales_ytd
+        data_type: double
+        description: ""
+
+      - name: sales_last_year
+        data_type: double
+        description: ""

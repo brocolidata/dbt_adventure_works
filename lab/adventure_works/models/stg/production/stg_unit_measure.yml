@@ -1,0 +1,15 @@
+models:
+  - name: stg_unit_measure
+    description: ""
+    columns:
+      - name: unit_measure_code
+        data_type: varchar
+        description: ""
+
+      - name: unit_measure_name
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

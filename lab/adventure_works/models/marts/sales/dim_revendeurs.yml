@@ -1,0 +1,35 @@
+models:
+  - name: dim_revendeurs
+    description: ""
+    columns:
+      - name: id_revendeur
+        data_type: integer
+        description: ""
+
+      - name: nom_revendeur
+        data_type: varchar
+        description: ""
+
+      - name: id_representant_commercial
+        data_type: integer
+        description: ""
+
+      - name: données_demographiques
+        data_type: varchar
+        description: ""
+
+semantic_models:
+  - name: revendeurs
+    label: Revendeurs
+    description: Magasins du réseau de revendeurs
+    model: ref('dim_revendeurs')
+    dimensions:
+    - name: nom_revendeur
+      type: categorical
+    entities:
+    - name: revendeurs
+      type: primary
+      expr: id_revendeur
+    - name: representants_commerciaux
+      type: foreign
+      expr: id_representant_commercial

@@ -1,0 +1,27 @@
+models:
+  - name: int_joined_person_customer
+    description: ""
+    columns:
+      - name: id_customer
+        data_type: integer
+        description: ""
+
+      - name: person_type
+        data_type: varchar
+        description: ""
+
+      - name: customer_full_name
+        data_type: varchar
+        description: ""
+
+      - name: id_store
+        data_type: integer
+        description: ""
+
+      - name: id_sales_territory
+        data_type: integer
+        description: ""
+
+      - name: account_number
+        data_type: varchar
+        description: ""

@@ -1,0 +1,16 @@
+beautifulsoup4>=4.12
+dbt-core>=1.6
+dbt-duckdb>=1.6
+dbt-metricflow>=0.3
+dbterd>=1.6
+duckdb<0.9
+duckdb-engine<0.9
+ipykernel>=6.25
+jupysql>=0.10
+lxml>=4.9
+openpyxl>=3.1
+# pandas==2.0.3
+pandas
+pyarrow>=13.0
+requests>=2.31
+ruamel.yaml>=0.17

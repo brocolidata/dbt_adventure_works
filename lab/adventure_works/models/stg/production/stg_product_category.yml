@@ -1,0 +1,19 @@
+models:
+  - name: stg_product_category
+    description: ""
+    columns:
+      - name: id_product_category
+        data_type: integer
+        description: ""
+
+      - name: product_category_name
+        data_type: varchar
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

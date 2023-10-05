@@ -1,0 +1,103 @@
+models:
+  - name: stg_product
+    description: ""
+    columns:
+      - name: id_product
+        data_type: integer
+        description: ""
+
+      - name: product_name
+        data_type: varchar
+        description: ""
+
+      - name: product_number
+        data_type: varchar
+        description: ""
+
+      - name: is_manufactured_in_house
+        data_type: boolean
+        description: ""
+
+      - name: is_sellable
+        data_type: boolean
+        description: ""
+
+      - name: product_color
+        data_type: varchar
+        description: ""
+
+      - name: safety_stock_level
+        data_type: smallint
+        description: ""
+
+      - name: reorder_point
+        data_type: smallint
+        description: ""
+
+      - name: standard_cost
+        data_type: double
+        description: ""
+
+      - name: list_price
+        data_type: double
+        description: ""
+
+      - name: product_size
+        data_type: varchar
+        description: ""
+
+      - name: size_unit_measure_code
+        data_type: varchar
+        description: ""
+
+      - name: weight_unit_measure_code
+        data_type: varchar
+        description: ""
+
+      - name: product_weight
+        data_type: double
+        description: ""
+
+      - name: days_to_manufacture
+        data_type: integer
+        description: ""
+
+      - name: product_line
+        data_type: varchar
+        description: ""
+
+      - name: product_class
+        data_type: varchar
+        description: ""
+
+      - name: product_style
+        data_type: varchar
+        description: ""
+
+      - name: id_product_subcategory
+        data_type: integer
+        description: ""
+
+      - name: id_product_model
+        data_type: integer
+        description: ""
+
+      - name: sell_start_date
+        data_type: timestamp
+        description: ""
+
+      - name: sell_end_date
+        data_type: timestamp
+        description: ""
+
+      - name: discontinued_date
+        data_type: timestamp
+        description: ""
+
+      - name: rowguid
+        data_type: varchar
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

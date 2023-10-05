@@ -1,0 +1,128 @@
+models:
+  - name: fct_commandes
+    description: ""
+    access: public
+    group: sales
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: id_bon_de_commande
+        data_type: integer
+        description: ""
+
+      - name: date_commande
+        data_type: timestamp
+        description: ""
+
+      - name: date_echeance
+        data_type: timestamp
+        description: ""
+
+      - name: date_expedition
+        data_type: timestamp
+        description: ""
+
+      - name: statut_commande
+        data_type: tinyint
+        description: ""
+
+      - name: est_commande_en_ligne
+        data_type: boolean
+        description: ""
+
+      - name: numero_bon_de_commande
+        data_type: varchar
+        description: ""
+
+      - name: numero_bon_achat
+        data_type: varchar
+        description: ""
+
+      - name: numero_compte
+        data_type: varchar
+        description: ""
+
+      - name: id_client
+        data_type: integer
+        description: ""
+
+      - name: id_representant_commercial
+        data_type: integer
+        description: ""
+
+      - name: id_territoire
+        data_type: integer
+        description: ""
+
+      - name: methode_expedition
+        data_type: varchar
+        description: ""
+
+      - name: tarif_expedition_minimum
+        data_type: double
+        description: ""
+
+      - name: tarif_expedition_au_kilo
+        data_type: double
+        description: ""
+
+      - name: id_taux_de_change
+        data_type: integer
+        description: ""
+
+      - name: sous_total
+        data_type: double
+        description: ""
+
+      - name: montant_taxes
+        data_type: double
+        description: ""
+
+      - name: fret
+        data_type: double
+        description: ""
+
+      - name: total_commande
+        data_type: double
+        description: ""
+
+semantic_models:
+  - name: commandes
+    description: En-tête de Commandes 
+    model: ref('fct_commandes')
+    defaults:
+      agg_time_dimension: date_commande
+    dimensions:
+    - name: date_commande
+      type: time
+      type_params:
+        time_granularity: day
+    - name: date_echeance
+      type: time
+      type_params:
+        time_granularity: day
+    - name: date_expedition
+      type: time
+      type_params:
+        time_granularity: day
+    - name: methode_expedition
+      type: categorical
+    measures:
+    - name: total_commande
+      agg: sum
+    entities:
+    - name: commandes
+      type: primary
+      expr: id_bon_de_commande
+    - name: clients
+      type: foreign
+      expr: id_client
+    - name: territoires
+      type: foreign
+      expr: id_territoire
+    - name: representants_commerciaux
+      type: foreign
+      expr: id_representant_commercial
+
+    

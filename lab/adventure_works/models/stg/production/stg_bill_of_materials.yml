@@ -1,0 +1,39 @@
+models:
+  - name: stg_bill_of_materials
+    description: ""
+    columns:
+      - name: id_bill_of_materials
+        data_type: integer
+        description: ""
+
+      - name: id_product_assembly
+        data_type: integer
+        description: ""
+
+      - name: id_component
+        data_type: integer
+        description: ""
+
+      - name: bom_start_date
+        data_type: timestamp
+        description: ""
+
+      - name: bom_end_daate
+        data_type: timestamp
+        description: ""
+
+      - name: unit_measure_code
+        data_type: varchar
+        description: ""
+
+      - name: bom_level
+        data_type: smallint
+        description: ""
+
+      - name: per_assemby_qty
+        data_type: double
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

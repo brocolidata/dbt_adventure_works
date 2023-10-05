@@ -1,0 +1,39 @@
+models:
+  - name: stg_currency_rate
+    description: ""
+    columns:
+      - name: id_currency_rate
+        data_type: integer
+        description: ""
+
+      - name: currency_rate_date
+        data_type: timestamp
+        description: ""
+
+      - name: from_currency_code
+        data_type: varchar
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_currency')
+              field: currency_code
+
+      - name: to_currency_code
+        data_type: varchar
+        description: ""
+        tests:
+          - relationships:
+              to: ref('stg_currency')
+              field: currency_code
+
+      - name: average_rate
+        data_type: double
+        description: ""
+
+      - name: end_of_day_rate
+        data_type: double
+        description: ""
+
+      - name: modified_date
+        data_type: timestamp
+        description: ""

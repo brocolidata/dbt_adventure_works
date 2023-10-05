@@ -1,0 +1,76 @@
+
+# Project names should contain only lowercase characters and underscores
+name: 'adventure_works'
+config-version: 2
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'adventure_works_duckdb'
+
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+clean-targets:
+  - 'dbt_packages'
+  - 'logs'
+  - 'targets'
+
+
+# Configuring models
+models:
+  adventure_works:
+    +materialized: table
+    stg:
+      +database: stg
+      human_resources:
+        #+schema: human_resources
+        # +group: human_resources
+      person:
+        #+schema: person
+        # +group: human_resources
+      production:
+        #+schema: production
+        # +group: production
+      purchasing:
+        #+schema: purchasing
+        # +group: purchasing
+      sales:
+        #+schema: sales
+        # +group: sales  
+    int:
+      +database: int
+      human_resources:
+        #+schema: human_resources
+        # +group: human_resources
+      person:
+        #+schema: person
+        # +group: human_resources
+      production:
+        #+schema: production
+        # +group: production
+      purchasing:
+        #+schema: purchasing
+        # +group: purchasing
+      sales:
+        #+schema: sales
+        # +group: sales 
+    marts:
+      +database: marts
+      human_resources:
+        #+schema: human_resources
+        +group: human_resources
+      person:
+        #+schema: person
+        +group: human_resources
+      production:
+        #+schema: production
+        +group: production
+      purchasing:
+        #+schema: purchasing
+        +group: purchasing
+      sales:
+        #+schema: sales
+        +group: sales 

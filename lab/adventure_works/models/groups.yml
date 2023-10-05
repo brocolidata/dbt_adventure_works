@@ -1,0 +1,17 @@
+groups:
+- name: human_resources
+  owner:
+    email: hr@adventure_works.com
+    slack: hr-data
+- name: production
+  owner:
+    email: production@adventure_works.com
+    slack: production-data
+- name: purchasing
+  owner:
+    email: purchasing@adventure_works.com
+    slack: purchasing-data
+- name: sales
+  owner:
+    email: sales@adventure_works.com
+    slack: sales-data

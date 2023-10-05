@@ -1,0 +1,51 @@
+models:
+  - name: dim_territoires
+    description: ""
+    columns:
+      - name: id_territoire
+        data_type: integer
+        description: ""
+
+      - name: nom_territoire
+        data_type: varchar
+        description: ""
+
+      - name: nom_region
+        data_type: varchar
+        description: ""
+
+      - name: groupe_territorial
+        data_type: varchar
+        description: ""
+
+      - name: ventes_ytd
+        data_type: double
+        description: ""
+
+      - name: ventes_annee_precedente
+        data_type: double
+        description: ""
+
+      - name: couts_ytd
+        data_type: double
+        description: ""
+
+      - name: couts_annee_precedente
+        data_type: double
+        description: ""
+
+semantic_models:
+  - name: territoires
+    description: Territoires de ventes
+    model: ref('dim_territoires')
+    dimensions:
+    - name: nom_territoire
+      type: categorical
+    - name: nom_region
+      type: categorical
+    - name: groupe_territorial
+      type: categorical
+    entities:
+    - name: territoires
+      type: primary
+      expr: id_territoire

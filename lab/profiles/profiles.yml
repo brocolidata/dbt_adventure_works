@@ -1,0 +1,18 @@
+adventure_works_duckdb:
+  target: prod
+  outputs:
+    prod:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_DATA') }}/raw.duckdb"
+      extensions:
+        - httpfs
+        - parquet
+        - excel
+        - spatial
+      attach:
+        - path: "{{ env_var('DUCKDB_DATA') }}/stg.duckdb"
+          alias: "stg"
+        - path: "{{ env_var('DUCKDB_DATA') }}/int.duckdb"
+          alias: "int"
+        - path: "{{ env_var('DUCKDB_DATA') }}/marts.duckdb"
+          alias: "marts"
