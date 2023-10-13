@@ -1,0 +1,40 @@
+name: 'Upload files to GCS bucket'
+
+on:
+  push: 
+    branches:
+      - main
+jobs:
+  changes:
+    name: 'Upload changed files to GCS'
+    runs-on: ubuntu-latest
+    env:
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      PROJECT_ID: ${{ secrets.FRONT_PROJECT_ID }}
+      BUCKET_NAME: ${{ secrets.DBT_DOCS_BUCKET }}
+    steps:
+      - name: 'Git Checkout'
+        uses: actions/checkout@v2
+      - name: 'Get changed files'
+        id: changed_files
+        uses: tj-actions/changed-files@v39
+        with:
+          files: |
+            ${{ github.workspace }}/lab/dwh_data/**
+      - name: 'Setup Python'
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      - name: 'Install dependencies'
+        run: |
+          pip install gcloud
+      - name: 'Authenticate gcloud'
+        id: 'auth'
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - name: 'Upload to GCS bucket'
+        id: build_distribution
+        if: steps.changed_files.outputs.test_any_changed == 'true' 
+        working-directory: ${{ github.workspace }}/lab
+        run: python3 main.py --files ${{ steps.changed_files.outputs.test_all_changed_files }}"
