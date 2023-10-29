@@ -1,0 +1,170 @@
+# name: GCS Deployment
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the main branch
+# on:
+#   push:
+#     branches: [ main ]
+
+# # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# jobs:
+#   # This workflow contains a single job called "deploy"
+#   deploy:
+#     # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
+
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+#     - uses: actions/checkout@v2
+
+#     # Setup gcloud CLI
+#     - uses: google-github-actions/setup-gcloud@v0
+#       with:
+#         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+#         service_account_key: ${{ secrets.GCP_SA_KEY }}
+#         project_id: github-actions-gcs2001
+
+#     - name: Deploy via GCS
+#       run: |
+#         gsutil -m rm -rf gs://github-actions-gcs2001/* || echo "$?"
+#         gsutil -m cp -r * gs://github-actions-gcs2001/
+
+# name: GCS Deployment
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - uses: google-github-actions/setup-gcloud@v0
+#         with:
+#           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+#           service_account_key: ${{ secrets.GCP_SA_KEY }}
+#           project_id: github-actions-gcs
+
+#       - name: Filter and Deploy Files
+#         run: |
+# #           Create a temporary directory for the files you want to deploy
+#           mkdir -p filtered_files
+
+#           # Use rsync to copy the files from the specified path to the temporary directory
+#           rsync -a "${{ github.workspace }}/lab/dwh/" filtered_files/
+
+#           # Use gsutil to deploy the filtered files to the GCS bucket
+#           gsutil -m cp -r filtered_files/* gs://github-action-gcs/
+
+#           # Clean up the temporary directory
+#           rm -r filtered_files
+
+
+
+          
+          
+# name: Sync Files with GCS Bucket
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   sync_with_gcs:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Check out the code
+#       uses: actions/checkout@v2
+
+#     - name: Configure Google Cloud SDK
+#       uses: google-github-actions/setup-gcloud@v0.6.0
+#       with:
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
+#         service_account_key: ${{ secrets.GCP_SA_KEY }}
+#         export_default_credentials: true
+
+#     - name: List local files
+#       id: list_local_files
+#       run: |
+#         cd "${{github.workspace}}"
+#         ls -R lab/dwh
+#         echo "::set-output name=local_files::$(ls -R lab/dwh)"
+        
+#     - name: List GCS bucket files
+#       id: list_bucket_files
+#       run: |
+#         gsutil ls -r gs://github-actions-gcs2001/
+#         echo "::set-output name=bucket_files::$(gsutil ls -r gs://github-actions-gcs2001/)"
+        
+#     - name: Compare and copy new files to GCS
+#       run: |
+#         local_files=(${{ steps.list_local_files.outputs.local_files }})
+#         bucket_files=(${{ steps.list_bucket_files.outputs.bucket_files }})
+        
+#         for file in "${local_files[@]}"; do
+#           if [[ ! " ${bucket_files[@]} " =~ " $file " ]]; then
+#             gsutil cp "$file" gs://github-actions-gcs2001/
+#           fi
+#         done
+
+name: Sync Files with GCS Bucket
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync_with_gcs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Configure Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.6.0
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: List local files
+      id: list_local_files
+      run: |
+        cd "${{github.workspace}}"
+        local_files=($(find lab/dwh_data/marts -type f))
+        echo "::set-output name=local_files::${local_files[@]}"
+
+    - name: List GCS bucket files
+      id: list_bucket_files
+      run: |
+        bucket_files=($(gsutil ls gs://github-actions-gcs2001/labs/marts))
+        echo "::set-output name=bucket_files::${bucket_files[@]}"
+
+    - name: Compare and copy new files to GCS
+      run: |
+        local_files=(${{ steps.list_local_files.outputs.local_files }})
+        bucket_files=(${{ steps.list_bucket_files.outputs.bucket_files }})
+        
+        for local_file in "${local_files[@]}"; do
+          local_file_name=$(basename "$local_file")
+          exists=false
+          for bucket_file in "${bucket_files[@]}"; do
+            bucket_file_name=$(basename "$bucket_file")
+            if [ "$local_file_name" == "$bucket_file_name" ]; then
+              exists=true
+              break
+            fi
+          done
+          if [ "$exists" == "false" ]; then
+            gsutil cp "$local_file" gs://github-actions-gcs2001/labs/marts
+          fi
+        done
+
