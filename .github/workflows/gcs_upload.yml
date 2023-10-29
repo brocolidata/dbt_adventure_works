@@ -1,40 +1,99 @@
-name: 'Upload files to GCS bucket'
+# name: 'Upload files to GCS bucket'
+
+# on:
+#   push: 
+#     branches:
+#       - main
+# jobs:
+  # changes:
+  #   name: 'Upload changed files to GCS'
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     GCP_REGION: ${{ secrets.GCP_REGION }}
+  #     PROJECT_ID: ${{ secrets.FRONT_PROJECT_ID }}
+  #     BUCKET_NAME: ${{ secrets.DBT_DOCS_BUCKET }}
+  #   steps:
+  #     - name: 'Git Checkout'
+  #       uses: actions/checkout@v2
+  #     - name: 'Get changed files'
+  #       id: changed_files
+  #       uses: tj-actions/changed-files@v39
+  #       with:
+  #         files: |
+  #           ${{ github.workspace }}/lab/dwh_data/**
+  #     - name: 'Setup Python'
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: '3.10'
+  #     - name: 'Install dependencies'
+  #       run: |
+  #         pip install gcloud
+  #     - name: 'Authenticate gcloud'
+  #       id: 'auth'
+  #       uses: google-github-actions/auth@v0
+  #       with:
+  #         credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+  #     - name: 'Upload to GCS bucket'
+  #       id: build_distribution
+  #       if: steps.changed_files.outputs.test_any_changed == 'true' 
+  #       working-directory: ${{ github.workspace }}/lab
+  #       run: python3 main.py --files ${{ steps.changed_files.outputs.test_all_changed_files }}"
+
+
+name: Sync Files with GCS Bucket
 
 on:
-  push: 
+  push:
     branches:
       - main
+
 jobs:
-  changes:
-    name: 'Upload changed files to GCS'
+  sync_with_gcs:
     runs-on: ubuntu-latest
     env:
-      GCP_REGION: ${{ secrets.GCP_REGION }}
-      PROJECT_ID: ${{ secrets.FRONT_PROJECT_ID }}
-      BUCKET_NAME: ${{ secrets.DBT_DOCS_BUCKET }}
+      GCS_BUCKET_NAME: ${{ secrets.BROCOLI_PUBLIC_GCS_BUCKET }}
+      
+
     steps:
-      - name: 'Git Checkout'
-        uses: actions/checkout@v2
-      - name: 'Get changed files'
-        id: changed_files
-        uses: tj-actions/changed-files@v39
-        with:
-          files: |
-            ${{ github.workspace }}/lab/dwh_data/**
-      - name: 'Setup Python'
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.10'
-      - name: 'Install dependencies'
-        run: |
-          pip install gcloud
-      - name: 'Authenticate gcloud'
-        id: 'auth'
-        uses: google-github-actions/auth@v0
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-      - name: 'Upload to GCS bucket'
-        id: build_distribution
-        if: steps.changed_files.outputs.test_any_changed == 'true' 
-        working-directory: ${{ github.workspace }}/lab
-        run: python3 main.py --files ${{ steps.changed_files.outputs.test_all_changed_files }}"
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Configure Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.6.0
+      with:
+        project_id: ${{ secrets.BROCOLI_FRONT_PROJECT }}
+        service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
+        export_default_credentials: true
+
+    - name: List local files
+      id: list_local_files
+      run: |
+        cd "${{github.workspace}}"
+        local_files=($(find lab/dwh_data/marts -type f))
+        echo "::set-output name=local_files::${local_files[@]}"
+
+    - name: List GCS bucket files
+      id: list_bucket_files
+      run: |
+        bucket_files=($(gsutil ls gs://GCS_BUCKET_NAME/adventure_works/marts))
+        echo "::set-output name=bucket_files::${bucket_files[@]}"
+
+    - name: Compare and copy new files to GCS
+      run: |
+        local_files=(${{ steps.list_local_files.outputs.local_files }})
+        bucket_files=(${{ steps.list_bucket_files.outputs.bucket_files }})
+        
+        for local_file in "${local_files[@]}"; do
+          local_file_name=$(basename "$local_file")
+          exists=false
+          for bucket_file in "${bucket_files[@]}"; do
+            bucket_file_name=$(basename "$bucket_file")
+            if [ "$local_file_name" == "$bucket_file_name" ]; then
+              exists=true
+              break
+            fi
+          done
+          if [ "$exists" == "false" ]; then
+            gsutil cp "$local_file" gs://GCS_BUCKET_NAME/adventure_works/marts
+          fi
+        done
