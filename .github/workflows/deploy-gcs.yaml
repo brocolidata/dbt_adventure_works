@@ -24,7 +24,7 @@ jobs:
         export_default_credentials: true
         
     - name: Check if Variable is Empty
-      run: 
+      run: |
         if [[ -z $GCS_BUCKET_NAME ]]; then
           echo "GCS_BUCKET_NAME is empty."
         else
