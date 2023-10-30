@@ -1,4 +1,4 @@
-name: Sync Files with GCS Bucket
+name: Sync Files with GCS Bucket 
 
 on:
   push:
