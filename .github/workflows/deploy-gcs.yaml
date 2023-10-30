@@ -32,7 +32,7 @@ jobs:
     - name: List GCS bucket files
       id: list_bucket_files
       run: |
-        bucket_files=($(gsutil ls gs://${{ secrets.BROCOLI_PUBLIC_GCS_BUCKET }}/adventure_works/marts))
+        bucket_files=($(gsutil ls gs://${{secrets.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts))
         echo "::set-output name=bucket_files::${bucket_files[@]}"
 
     - name: Compare and copy new files to GCS
