@@ -30,6 +30,21 @@ jobs:
         else
           echo "GCS_BUCKET_NAME is not empty."
         fi
+        
+    - name: Check if Variable is Empty
+      run: |
+        if [[ -z ${{ secrets.BROCOLI_FRONT_PROJECT }} ]]; then
+          echo "GCS_BUCKET_NAME is empty."
+        else
+          echo "GCS_BUCKET_NAME is not empty."
+        fi   
+    - name: Check if Variable is Empty
+      run: |
+        if [[ -z ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }} ]]; then
+          echo "GCS_BUCKET_NAME is empty."
+        else
+          echo "GCS_BUCKET_NAME is not empty."
+        fi       
     
 
     - name: List local files
