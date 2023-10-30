@@ -8,8 +8,7 @@ on:
 jobs:
   sync_with_gcs:
     runs-on: ubuntu-latest
-    env:
-      GCS_BUCKET_NAME: ${{ secrets.BROCOLI_PUBLIC_GCS_BUCKET }}
+   
       
 
     steps:
@@ -33,7 +32,7 @@ jobs:
     - name: List GCS bucket files
       id: list_bucket_files
       run: |
-        bucket_files=($(gsutil ls gs://GCS_BUCKET_NAME/adventure_works/marts))
+        bucket_files=($(gsutil ls gs://${{ secrets.BROCOLI_PUBLIC_GCS_BUCKET }}/adventure_works/marts))
         echo "::set-output name=bucket_files::${bucket_files[@]}"
 
     - name: Compare and copy new files to GCS
@@ -52,7 +51,7 @@ jobs:
             fi
           done
           if [ "$exists" == "false" ]; then
-            gsutil cp "$local_file" gs://GCS_BUCKET_NAME/adventure_works/marts
+            gsutil cp "$local_file" gs://${{ secrets.BROCOLI_PUBLIC_GCS_BUCKET }}/adventure_works/marts
           fi
         done
 
