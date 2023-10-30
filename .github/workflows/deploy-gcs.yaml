@@ -13,6 +13,21 @@ jobs:
       
 
     steps:
+    - name: Check if GitHub Variable is Set
+      run: |
+          if [ -z "${{ github.BROCOLI_FRONT_PROJECT }}" ]; then
+            echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is empty or not set."
+          else
+            echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is not empty and is set to: ${{ github.event.head_commit.message }}"
+          fi
+
+    - name: Check if GitHub Variable is Set
+      run: |
+          if [ -z "${{github.BROCOLI_PUBLIC_GCS_BUCKET}}" ]; then
+            echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is empty or not set."
+          else
+            echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is not empty and is set to: ${{ github.event.head_commit.message }}"
+          fi     
     - name: Check out the code
       uses: actions/checkout@v2
 
@@ -23,7 +38,7 @@ jobs:
         service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
         export_default_credentials: true
         
-    
+     
         
     
     - name: List local files
