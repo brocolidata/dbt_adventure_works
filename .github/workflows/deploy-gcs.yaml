@@ -19,7 +19,7 @@ jobs:
     - name: Configure Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.6.0
       with:
-        project_id:  ${{ secrets.BROCOLI_FRONT_PROJECT }}
+        project_id:  ${{ github.BROCOLI_FRONT_PROJECT }}
         service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
         export_default_credentials: true
         
