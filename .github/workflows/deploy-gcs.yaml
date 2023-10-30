@@ -10,8 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GCS_BUCKET_NAME: ${{secrets.BROCOLI_PUBLIC_GCS_BUCKET}}
-      GCS_PROJECT_ID: ${{ secrets.BROCOLI_FRONT_PROJECT }}
-      GCS_SERVICE_ACCOUNT_KEY: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
+      
       
 
     steps:
@@ -21,8 +20,8 @@ jobs:
     - name: Configure Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.6.0
       with:
-        project_id: $GCS_PROJECT_ID
-        service_account_key: $GCS_SERVICE_ACCOUNT_KEY
+        project_id:  ${{ secrets.BROCOLI_FRONT_PROJECT }}
+        service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
         export_default_credentials: true
         
     - name: Check if Variable is Empty
@@ -33,22 +32,7 @@ jobs:
           echo "GCS_BUCKET_NAME is not empty."
         fi
         
-    - name: Check if Variable is Empty
-      run: |
-        if [[ -z $GCS_PROJECT_ID ]]; then
-          echo "GCS_PROJECT_ID is empty."
-        else
-          echo "GCS_PROJECT_ID is not empty."
-        fi   
-    - name: Check if Variable is Empty
-      run: |
-        if [[ -z $GCS_SERVICE_ACCOUNT_KEY ]]; then
-          echo "GCS_SERVICE_ACCOUNT_KEY is empty."
-        else
-          echo "GCS_SERVICE_ACCOUNT_KEY is not empty."
-        fi       
     
-
     - name: List local files
       id: list_local_files
       run: |
