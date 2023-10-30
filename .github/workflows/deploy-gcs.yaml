@@ -34,6 +34,7 @@ jobs:
       id: list_bucket_files
       run: |
         bucket_files=($(gsutil ls gs://$GCS_BUCKET_NAME/adventure_works/marts))
+        echo "$GCS_BUCKET_NAME"
         echo "::set-output name=bucket_files::${bucket_files[@]}"
 
     - name: Compare and copy new files to GCS
