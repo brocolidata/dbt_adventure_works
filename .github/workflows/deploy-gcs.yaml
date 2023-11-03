@@ -1,77 +1,125 @@
-name: Sync Files with GCS Bucket 
+name: GCS Deployment
 
 on:
   push:
-    branches:
-      - main
- 
+    branches: [ main ]
+
 jobs:
-  sync_with_gcs:
+  deploy:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.6.0
+        with:
+          project_id:  ${{ vars.BROCOLI_FRONT_PROJECT }}
+          service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
+          export_default_credentials: true
+
+      - name: Filter and Deploy Files
+        run:  |
+        #           Create a temporary directory for the files you want to deploy
+             mkdir -p filtered_files
+
+          # Use rsync to copy the files from the specified path to the temporary directory
+             rsync -a "${{ github.workspace }}/lab/dwh_data/marts" filtered_files/
+
+          # # Use gsutil to deploy the filtered files to the GCS bucket
+             gsutil -m cp -r filtered_files/* gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
+
+          # # Clean up the temporary directory
+             rm -r filtered_files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: Sync Files with GCS Bucket 
+
+# on:
+#   push:
+#     branches:
+#       - main
+ 
+# jobs:
+#   sync_with_gcs:
+#     runs-on: ubuntu-latest
     
       
       
 
-    steps:
-    - name: Check if GitHub Variable is Set
-      run: |
-          if [ -z "${{ vars.BROCOLI_FRONT_PROJECT }}" ]; then
-            echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is empty or not set."
-          else
-            echo "GitHub Variable vars.BROCOLI_FRONT_PROJECT is not empty and is set to: ${{ github.event.head_commit.message }}"
-          fi
+#     steps:
+#     - name: Check if GitHub Variable is Set
+#       run: |
+#           if [ -z "${{ vars.BROCOLI_FRONT_PROJECT }}" ]; then
+#             echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is empty or not set."
+#           else
+#             echo "GitHub Variable vars.BROCOLI_FRONT_PROJECT is not empty and is set to: ${{ github.event.head_commit.message }}"
+#           fi
 
-    - name: Check if GitHub Variable is Set
-      run: |
-          if [ -z "${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}" ]; then
-            echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is empty or not set."
-          else
-            echo "GitHub Variable vars.BROCOLI_PUBLIC_GCS_BUCKET is not empty and is set to: ${{ github.event.head_commit.message }}"
-          fi     
-    - name: Check out the code
-      uses: actions/checkout@v2
+#     - name: Check if GitHub Variable is Set
+#       run: |
+#           if [ -z "${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}" ]; then
+#             echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is empty or not set."
+#           else
+#             echo "GitHub Variable vars.BROCOLI_PUBLIC_GCS_BUCKET is not empty and is set to: ${{ github.event.head_commit.message }}"
+#           fi     
+#     - name: Check out the code
+#       uses: actions/checkout@v2
 
-    - name: Configure Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0.6.0
-      with:
-        project_id:  ${{ vars.BROCOLI_FRONT_PROJECT }}
-        service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
-        export_default_credentials: true
+#     - name: Configure Google Cloud SDK
+#       uses: google-github-actions/setup-gcloud@v0.6.0
+#       with:
+#         project_id:  ${{ vars.BROCOLI_FRONT_PROJECT }}
+#         service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
+#         export_default_credentials: true
         
      
         
     
-    - name: List local files
-      id: list_local_files
-      run: |
-        cd "${{github.workspace}}"
-        local_files=($(find lab/dwh_data/marts -type f))
-        echo "::set-output name=local_files::${local_files[@]}"
+#     - name: List local files
+#       id: list_local_files
+#       run: |
+#         cd "${{github.workspace}}"
+#         local_files=($(find lab/dwh_data/marts -type f))
+#         echo "::set-output name=local_files::${local_files[@]}"
 
-    - name: List GCS bucket files
-      id: list_bucket_files
-      run: |
-        bucket_files=($(gsutil ls gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts))
-        echo "$GCS_BUCKET_NAME"
-        echo "::set-output name=bucket_files::${bucket_files[@]}"
+#     - name: List GCS bucket files
+#       id: list_bucket_files
+#       run: |
+#         bucket_files=($(gsutil ls gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts))
+#         echo "$GCS_BUCKET_NAME"
+#         echo "::set-output name=bucket_files::${bucket_files[@]}"
 
-    - name: Compare and copy new files to GCS
-      run: |
-        local_files=(${{ steps.list_local_files.outputs.local_files }})
-        bucket_files=(${{ steps.list_bucket_files.outputs.bucket_files }})
+#     - name: Compare and copy new files to GCS
+#       run: |
+#         local_files=(${{ steps.list_local_files.outputs.local_files }})
+#         bucket_files=(${{ steps.list_bucket_files.outputs.bucket_files }})
         
-        for local_file in "${local_files[@]}"; do
-          local_file_name=$(basename "$local_file")
-          exists=false
-          for bucket_file in "${bucket_files[@]}"; do
-            bucket_file_name=$(basename "$bucket_file")
-            if [ "$local_file_name" == "$bucket_file_name" ]; then
-              exists=true
-              break
-            fi
-          done
-          if [ "$exists" == "false" ]; then
-            gsutil cp "$local_file" gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
-          fi
-        done
+#         for local_file in "${local_files[@]}"; do
+#           local_file_name=$(basename "$local_file")
+#           exists=false
+#           for bucket_file in "${bucket_files[@]}"; do
+#             bucket_file_name=$(basename "$bucket_file")
+#             if [ "$local_file_name" == "$bucket_file_name" ]; then
+#               exists=true
+#               break
+#             fi
+#           done
+#           if [ "$exists" == "false" ]; then
+#             gsutil cp "$local_file" gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
+#           fi
+#         done
 
