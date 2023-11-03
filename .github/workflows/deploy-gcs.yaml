@@ -15,18 +15,18 @@ jobs:
     steps:
     - name: Check if GitHub Variable is Set
       run: |
-          if [ -z "${{ github.BROCOLI_FRONT_PROJECT }}" ]; then
+          if [ -z "${{ vars.BROCOLI_FRONT_PROJECT }}" ]; then
             echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is empty or not set."
           else
-            echo "GitHub Variable github.BROCOLI_FRONT_PROJECT is not empty and is set to: ${{ github.event.head_commit.message }}"
+            echo "GitHub Variable vars.BROCOLI_FRONT_PROJECT is not empty and is set to: ${{ github.event.head_commit.message }}"
           fi
 
     - name: Check if GitHub Variable is Set
       run: |
-          if [ -z "${{github.BROCOLI_PUBLIC_GCS_BUCKET}}" ]; then
+          if [ -z "${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}" ]; then
             echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is empty or not set."
           else
-            echo "GitHub Variable github.BROCOLI_PUBLIC_GCS_BUCKET is not empty and is set to: ${{ github.event.head_commit.message }}"
+            echo "GitHub Variable vars.BROCOLI_PUBLIC_GCS_BUCKET is not empty and is set to: ${{ github.event.head_commit.message }}"
           fi     
     - name: Check out the code
       uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
     - name: Configure Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.6.0
       with:
-        project_id:  ${{ github.BROCOLI_FRONT_PROJECT }}
+        project_id:  ${{ vars.BROCOLI_FRONT_PROJECT }}
         service_account_key: ${{ secrets.BROCOLI_PUBLIC_BUCKET_GCP_SA_CREDENTIALS }}
         export_default_credentials: true
         
@@ -51,7 +51,7 @@ jobs:
     - name: List GCS bucket files
       id: list_bucket_files
       run: |
-        bucket_files=($(gsutil ls gs://${{github.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts))
+        bucket_files=($(gsutil ls gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts))
         echo "$GCS_BUCKET_NAME"
         echo "::set-output name=bucket_files::${bucket_files[@]}"
 
@@ -71,7 +71,7 @@ jobs:
             fi
           done
           if [ "$exists" == "false" ]; then
-            gsutil cp "$local_file" gs://${{github.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
+            gsutil cp "$local_file" gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
           fi
         done
 
