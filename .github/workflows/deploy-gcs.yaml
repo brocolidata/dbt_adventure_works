@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-
+ 
 jobs:
   sync_with_gcs:
     runs-on: ubuntu-latest
