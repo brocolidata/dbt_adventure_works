@@ -22,7 +22,7 @@ jobs:
               mkdir -p filtered_files
 
               #Use rsync to copy the files from the specified path to the temporary directory
-               cp -r  "${{ github.workspace }}/lab/dwh_data/marts" filtered_files/
+               cp -r  /home/runner/work/dbt_adventure_works/dbt_adventure_works/lab/dwh_data/marts filtered_files/
 
               #Use gsutil to deploy the filtered files to the GCS bucket
               gsutil -m cp -r filtered_files/* gs://${{vars.BROCOLI_PUBLIC_GCS_BUCKET}}/adventure_works/marts
