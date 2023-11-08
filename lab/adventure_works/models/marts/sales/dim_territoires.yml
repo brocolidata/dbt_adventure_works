@@ -1,38 +1,41 @@
 models:
   - name: dim_territoires
-    description: ""
+    description: "Table de référence des territoires de ventes."
     columns:
       - name: id_territoire
         data_type: integer
-        description: ""
+        description: "ID du territoire. Clé primaire de dim_territoires"
 
       - name: nom_territoire
         data_type: varchar
-        description: ""
+        description: "Nom du territoire de ventes."
 
       - name: nom_region
         data_type: varchar
-        description: ""
+        description: "Région du territoire de ventes."
 
       - name: groupe_territorial
         data_type: varchar
-        description: ""
+        description: "Zone géographique à laquelle appartient le territoire de vente."
 
       - name: ventes_ytd
         data_type: double
-        description: ""
+        description: >
+          Ventes totales du territoire depuis le début de l'année.
 
       - name: ventes_annee_precedente
         data_type: double
-        description: ""
+        description: Ventes totales du territoire durant l'année précédente.
 
       - name: couts_ytd
         data_type: double
-        description: ""
+        description: >
+          Coûts financiers sur le territoire depuis le début de l'année.
 
       - name: couts_annee_precedente
         data_type: double
-        description: ""
+        description: >
+          Coûts financiers sur le territoire durant l'année précédente.
 
 semantic_models:
   - name: territoires

@@ -1,38 +1,46 @@
 models:
   - name: fct_lignes_commandes
-    description: ""
+    description: >
+      Table de référence des ventes.
+      La table est à la granularité des lignes de bon de commande client.
     columns:
       - name: id_bon_de_commande
         data_type: integer
-        description: ""
+        description: "ID du bon de commande client. Clé étrangère de fct_commandes."
 
       - name: id_ligne_de_commande
         data_type: integer
-        description: ""
+        description: >
+          ID de la ligne bon de commande client. 
+          Clé primaire de fct_lignes_commandes.
 
       - name: quantite_commande
         data_type: smallint
-        description: ""
+        description: "Quantité commandée du produit."
 
       - name: id_produit
         data_type: integer
-        description: ""
+        description: >
+          ID du produit de la ligne de commande client.
+          Clé étrangère de dim_produits.
 
       - name: offre_speciale
         data_type: varchar
-        description: ""
+        description: "Nom de l'offre spéciale."
 
       - name: prix_unitaire
         data_type: double
-        description: ""
+        description: "Prix ​​de vente d'unitaire du produit."
 
       - name: montant_remise
         data_type: double
-        description: ""
+        description: "Montant unitaire de la remise."
 
       - name: total_ligne
         data_type: double
-        description: ""
+        description: >
+          Sous-total par produit. 
+          total_ligne = prix_unitaire * (1 - montant_remise) * quantite_commande.
 
         
 semantic_models:

@@ -1,22 +1,28 @@
 models:
   - name: dim_revendeurs
-    description: ""
+    description: |
+      Table de référence des clients (revendeurs) des produits Adventure Works.
     columns:
       - name: id_revendeur
         data_type: integer
-        description: ""
+        description: "ID du revendeur. Clé primaire de dim_revendeurs."
 
       - name: nom_revendeur
         data_type: varchar
-        description: ""
+        description: "Nom du revendeur"
 
       - name: id_representant_commercial
         data_type: integer
-        description: ""
+        description: |
+          ID du représentant commercial assigné au revendeur.
+          Clé étrangère de dim_representants_commerciaux
 
       - name: données_demographiques
         data_type: varchar
-        description: ""
+        description: |
+          Informations démographiques sur le magasin telles que le nombre d'employés, 
+          les ventes annuelles et le type de magasin.
+
 
 semantic_models:
   - name: revendeurs

@@ -1,6 +1,8 @@
 models:
   - name: fct_commandes
-    description: ""
+    description: >
+      Table de référence des ventes.
+      La table est à la granularité des en-têtes de bon de commande client.
     access: public
     group: sales
     config:
@@ -9,83 +11,96 @@ models:
     columns:
       - name: id_bon_de_commande
         data_type: integer
-        description: ""
+        description: "ID du bon de commande client. Clé primaire de fct_commandes."
 
       - name: date_commande
         data_type: timestamp
-        description: ""
+        description: "Date de création de la commande client."
 
       - name: date_echeance
         data_type: timestamp
-        description: ""
+        description: "Date d'échéance de paiement de la commande client."
 
       - name: date_expedition
         data_type: timestamp
-        description: ""
+        description: "Date d'expédition de la commande client."
 
       - name: statut_commande
         data_type: tinyint
-        description: ""
+        description: >
+          Statut actuel de la commande : 
+          - 1 = En cours
+          - 2 = Approuvé
+          - 3 = En rupture de stock
+          - 4 = Rejeté
+          - 5 = Expédié
+          - 6 = Annulé
 
       - name: est_commande_en_ligne
         data_type: boolean
-        description: ""
+        description: "Vrai si la commande a été faite via internet. Faux si vente physique."
 
       - name: numero_bon_de_commande
         data_type: varchar
-        description: ""
+        description: "Numéro d’identification unique de la commande client."
 
       - name: numero_bon_achat
         data_type: varchar
-        description: ""
+        description: "Référence du numéro de bon de commande client."
 
       - name: numero_compte
         data_type: varchar
-        description: ""
+        description: "Référence du numéro de comptabilité financière."
 
       - name: id_client
         data_type: integer
-        description: ""
+        description: "ID du client. Clé étrangère de dim_clients."
 
       - name: id_representant_commercial
         data_type: integer
-        description: ""
+        description: >
+          ID du représentant commercial. Clé étrangère de dim_representants_commerciaux.
 
       - name: id_territoire
         data_type: integer
-        description: ""
+        description: "ID du territoire. Clé étrangère de dim_territoires"
 
       - name: methode_expedition
         data_type: varchar
-        description: ""
+        description: "Mode de livraison de la commande."
 
       - name: tarif_expedition_minimum
         data_type: double
-        description: ""
+        description: "Frais d'expédition minimaux."
 
       - name: tarif_expedition_au_kilo
         data_type: double
-        description: ""
+        description: "Frais d'expédition par livre."
 
       - name: id_taux_de_change
         data_type: integer
-        description: ""
+        description: "ID du taux de change."
 
       - name: sous_total
         data_type: double
-        description: ""
+        description: >
+          Sous-total des ventes. 
+          sous_total = SUM(fct_lignes_commandes.total_ligne) 
+          pour le id_bon_de_commande approprié.
 
       - name: montant_taxes
         data_type: double
-        description: ""
+        description: "Montant de la taxe."
 
       - name: fret
         data_type: double
-        description: ""
+        description: "Frais de port."
 
       - name: total_commande
         data_type: double
-        description: ""
+        description: >
+          Total dû par le client. 
+          total_commande = sous_total + montant_taxes + fret.
 
 semantic_models:
   - name: commandes
