@@ -1,42 +1,53 @@
 models:
   - name: dim_representants_commerciaux
-    description: ""
+    description: "Table de référence des représentants commerciaux"
     columns:
       - name: id_representant_commercial
         data_type: integer
-        description: ""
+        description: "ID du représentant commercial. Clé primaire de dim_representants_commerciaux"
 
       - name: nom_representant_commercial
         data_type: varchar
-        description: ""
+        description: "Nom du représentant commercial"
 
       - name: type_contact
         data_type: varchar
-        description: ""
+        description: |
+          Type de contact : 
+          - SC = Contact magasin
+          - IN = Client détail (individu)
+          - SP = Représentant commercial
+          - EM = Employé (non commercial)
+          - VC = Contact vendeur
+          - GC = Contact général
 
       - name: id_territoire
         data_type: integer
-        description: ""
+        description: "ID du territoire. Clé étrangère de dim_territoires"
 
       - name: quota_ventes
         data_type: double
-        description: ""
+        description: "Projection des ventes annuelles du représentant commercial"
 
       - name: bonus
         data_type: double
-        description: ""
+        description: "Bonus dû au représentant commercial si le quota est atteint"
 
       - name: pct_commission
         data_type: double
-        description: ""
+        description: |
+          Pourcentage de commission reçu par le représentant commercial.
+          Le pourcentage est calculé sur chaque vente.
 
       - name: ventes_ytd
         data_type: double
-        description: ""
+        description: >
+          Ventes totales du représentant commercial depuis le début de l'année.
 
       - name: ventes_annee_precedente
         data_type: double
-        description: ""
+        description: |
+          Total des ventes du représentant commercial durant l'année précédente.
 
 
 semantic_models:

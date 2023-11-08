@@ -1,30 +1,37 @@
 models:
   - name: dim_clients
-    description: ""
+    description: "Table de référence des clients"
     columns:
       - name: id_client
         data_type: integer
-        description: ""
+        description: "ID du client. Clé primaire de dim_clients."
 
       - name: type_personne
         data_type: varchar
-        description: ""
+        description: |
+          Type de client : 
+          - SC = Contact magasin
+          - IN = Client détail (individu)
+          - SP = Représentant commercial
+          - EM = Employé (non commercial)
+          - VC = Contact vendeur
+          - GC = Contact général
 
       - name: nom_complet_client
         data_type: varchar
-        description: ""
+        description: "Non complet du client"
 
       - name: id_revendeur
         data_type: integer
-        description: ""
+        description: "ID du revendeur. Clé étrangère de dim_revendeurs."
 
       - name: id_territoire
         data_type: integer
-        description: ""
+        description: "ID du territoire. Clé étrangère de dim_territoires"
 
       - name: numero_client
         data_type: varchar
-        description: ""
+        description: "Numéro du client"
 
 semantic_models:
   - name: clients
